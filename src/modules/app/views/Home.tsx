@@ -1,9 +1,14 @@
+import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import React from 'react';
+
 
 export const Home: React.FC = () => {
   return (
-    <div className="p-8">
-      <h2 className="text-2xl text-white">Bienvenido a HOME</h2>
+    <div className=" bg-gray-900 min-h-screen">
+      <DashboardLayout>
+        <h1>SOY CENTRO</h1>
+      </DashboardLayout>
     </div>
+
   );
 };

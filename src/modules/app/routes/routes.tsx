@@ -7,7 +7,7 @@ export const AppRRoutes: RouteObject = {
   path: '',
   children: [
     {
-      index: true, // Ruta: /library
+      index: true, 
       element: <Home />
     },
   ]

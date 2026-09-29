@@ -33,5 +33,7 @@
       "@utils/*": ["./src/utils/*"]
     }
   },
-  "include": ["src"]
+  "include": ["src","src/**/*.ts",
+  "src/**/*.tsx",
+  "src/**/*.d.ts"]
 }
