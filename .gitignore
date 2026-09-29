@@ -1,0 +1,53 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Dependencias
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor de código y SO (Archivos del sistema)
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.class
+*.exe
+*.so
+*.dll
+Thumbs.db
+
+# Entornos y Variables secretas 
+.env
+.env.local
+.env.*.local
+.env.development*
+.env.test*
+.env.production.local
+
+# Vite y Caches locales
+.vite/
+eslint-cache
+.stylelintcache
+.npm
+.eslintcache
+.pnpm-store
+
+# TypeScript
+*.tsbuildinfo
+
+# Testing
+coverage/
+
+# Vercel / Netlify / Otros hostings
+.vercel
+.netlify
