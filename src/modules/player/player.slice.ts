@@ -1,7 +1,5 @@
-import type { PayloadAction } from '@reduxjs/toolkit'
-import type { RootState } from '@store/store'
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { artisService } from './services/artist.service';
+import { artistService } from './services/artist.service';
 
 interface BaseMedia {
   artistId: number;
@@ -19,17 +17,10 @@ interface TrackItem extends BaseMedia {
   collectionName?: string;
 }
 
-interface AudiobookItem extends BaseMedia {
-  wrapperType: 'audiobook';
-  collectionId: number;
-  collectionName: string;
-  collectionViewUrl: string;
-  description: string;
-  longDescription?: string;
-}
+
 
 // Tipo final para la respuesta dependiendo de respuesta
-type ItunesItem = TrackItem | AudiobookItem;
+type ItunesItem = TrackItem ;
 
 
 export interface PlayerState {
@@ -53,8 +44,7 @@ const initialState: PlayerState = {
 export const fetchArtists = createAsyncThunk(
   'artist/fetchArtists',
   async (searchTerm: string, { signal, rejectWithValue }) => {
-
-    const { url, options } = artisService.searchArtists(searchTerm, { signal });
+    const { url, options } = artistService.searchArtists(searchTerm, { signal });
 
     try {
       const response = await fetch(url, options);
@@ -64,11 +54,19 @@ export const fetchArtists = createAsyncThunk(
       }
 
       const data = await response.json();
-      return (data.results || []) as ItunesItem[];
+      const rawResults = (data.results || []) as ItunesItem[];
+
+      // Mapeamos los resultados sustituyendo la resolución en la URL del artwork
+      const formattedResults: ItunesItem[] = rawResults.map((item) => ({
+        ...item,
+        artworkUrl100: item.artworkUrl100
+          ? item.artworkUrl100.replace(/100x100/g, '200x200')
+          : item.artworkUrl100,
+      }));
+
+      return formattedResults;
     } catch (error: unknown) {
       if (error instanceof Error) {
-        // Si fue abortada manualmente por una nueva pulsación, relanzamos
-        // para que Redux Toolkit marque action.meta.aborted = true
         if (error.name === 'AbortError') {
           throw error;
         }
@@ -78,7 +76,6 @@ export const fetchArtists = createAsyncThunk(
     }
   }
 );
-
 
  export const playerSlice=createSlice({
     name:'player',
@@ -102,3 +99,5 @@ export const fetchArtists = createAsyncThunk(
       });
     }
  })
+
+ export default playerSlice.reducer;

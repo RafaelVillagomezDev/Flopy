@@ -5,8 +5,8 @@ import path from 'path'
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [react(),tailwindcss(),],
- resolve: {
+  plugins: [react(), tailwindcss(),],
+  resolve: {
     alias: {
       '@': path.resolve(import.meta.dirname, './src'),
       '@assets': path.resolve(import.meta.dirname, './src/assets'),
@@ -17,7 +17,9 @@ export default defineConfig({
       '@store': path.resolve(import.meta.dirname, './src/store'),
       '@types': path.resolve(import.meta.dirname, './src/types'),
       '@utils': path.resolve(import.meta.dirname, './src/utils'),
-      
+
     },
   },
+  
+
 })

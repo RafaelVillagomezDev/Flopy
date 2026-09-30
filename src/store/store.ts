@@ -1,8 +1,10 @@
 import { configureStore } from '@reduxjs/toolkit'
-
+import playerReducer from '@modules/player/player.slice';
 
 export const store = configureStore({
-  reducer: {}
+  reducer: {
+    player: playerReducer
+  }
 })
 
 export type RootState = ReturnType<typeof store.getState>
