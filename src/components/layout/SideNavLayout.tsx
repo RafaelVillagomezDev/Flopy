@@ -5,7 +5,7 @@ export const SideNavLayout: React.FC<{ children: React.ReactNode }> = ({ childre
 
 
     return (
-        <div className="flex flex-col h-full w-full">
+        <div className="flex  flex-col h-full w-full">
             {children}
         </div>)
 }

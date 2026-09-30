@@ -1,14 +1,31 @@
 import { Outlet } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { DashboardLayout } from './DashboardLayout';
+import { DashboardMobileLayout } from './DashboardMobileLayout';
 
-export const MainLayout : React.FC = () => {
+
+export const MainLayout: React.FC = () => {
+
+  const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 768);
+
+  // Escuchamos los cambios de tamaño de la ventana
+  useEffect(() => {
+    const handleResize = () => setIsDesktop(window.innerWidth >= 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  if (isDesktop) {
+    return (
+      <DashboardLayout>
+        <Outlet /> 
+      </DashboardLayout>
+    );
+  }
+
   return (
-    <div className="flex h-screen text-slate-100 overflow-hidden font-sans">
-      
-        
-        <main className="flex-1 overflow-y-auto ">
-          <Outlet /> 
-        </main>
-    
-    </div>
+     <DashboardMobileLayout>
+        <Outlet />
+     </DashboardMobileLayout>
   );
 };

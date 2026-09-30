@@ -11,13 +11,13 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
 
             {/* PANEL IZQUIERDO: Estático */}
 
-            <aside className="col-start-1 row-start-1 overflow-y-auto bg-black p-4 border-r border-gray-800 [&::-webkit-scrollbar]:hidden">
+            <aside className="col-start-1 row-start-1 overflow-y-auto bg-black p-4 border-r border-gray-800 [&::-webkit-scrollbar]:hidden [scrollbar-width:none">
                 <h2 className="text-xl font-bold mb-6">Flopy</h2>
                 <Sidebar />
             </aside>
 
             {/* CONTENIDO CENTRAL: Dinámico (Aquí entra la magia de {children}) */}
-            <main className="col-start-2 row-start-1 overflow-y-auto bg-[#181818]">
+            <main className="col-start-2 row-start-1 overflow-y-auto bg-[#181818] [&::-webkit-scrollbar]:hidden [scrollbar-width:none">
                 {children}
             </main>
 
