@@ -30,7 +30,7 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
             </aside>
 
             {/* REPRODUCTOR INFERIOR: Estático */}
-            <aside className="col-span-3 row-start-2 bg-[#282828] border-t border-gray-700 p-4 z-10">
+            <aside className="col-span-3 row-start-2 bg-[#282828]  border-gray-700  z-10">
                 {/* Componente del reproductor */}
                 <PlayerBar/>
             </aside>
