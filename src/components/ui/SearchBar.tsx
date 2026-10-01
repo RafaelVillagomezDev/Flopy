@@ -22,12 +22,12 @@ export const SearchBar: React.FC<SearchBarProps> = ({
         value={searchTerm}
         onChange={(e) => onSearchChange(e.target.value)}
         placeholder={placeholder}
-        className="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        className="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-red-hover focus:border-brand-red transition"
       />
       <button
         type="submit"
         disabled={loading}
-        className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-500 disabled:opacity-50 transition"
+        className="px-4 py-2 bg-brand-red text-white rounded-lg hover:bg-brand-red-hover disabled:opacity-50 transition"
       >
         {loading ? "Buscando..." : "Buscar"}
       </button>

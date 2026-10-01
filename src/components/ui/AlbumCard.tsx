@@ -1,0 +1,58 @@
+import type React from 'react';
+import { NavLink } from 'react-router-dom';
+import { Disc3 } from 'lucide-react';
+
+interface AlbumCardProps {
+  to: string;
+  src: string;
+  artistName: string;
+  trackName: string;
+}
+
+export const AlbumCard: React.FC<AlbumCardProps> = ({
+  to,
+  src,
+  artistName,
+  trackName,
+}) => {
+  return (
+    <NavLink
+      to={to}
+      className="group flex flex-col p-3 rounded-2xl bg-neutral-900/60 transition-all duration-300 w-full max-w-[200px] select-none active:scale-[0.98] [@media(hover:hover)]:hover:bg-neutral-800/80"
+    >
+      {/* Contenedor de la portada */}
+      <div className="relative aspect-square w-full overflow-hidden rounded-xl bg-neutral-800 shadow-md transition-shadow [@media(hover:hover)]:group-hover:shadow-xl [@media(hover:hover)]:group-hover:shadow-black/50">
+        <img
+          src={src}
+          alt={artistName}
+          loading="lazy"
+          className="h-full w-full object-cover transition-transform duration-500 ease-out [@media(hover:hover)]:group-hover:scale-105"
+        />
+
+        {/* Gradiente inferior */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent pointer-events-none opacity-100 transition-opacity duration-300 [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-hover:opacity-100" />
+
+        {/* Botón flotante decorativo */}
+        <div
+          aria-hidden="true"
+          className="absolute right-2.5 bottom-2.5 flex h-10 w-10 items-center justify-center rounded-full bg-red-500 text-white shadow-lg shadow-red-500/30 transition-all duration-300 ease-out opacity-100 translate-y-0 [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:translate-y-2 [@media(hover:hover)]:group-hover:opacity-100 [@media(hover:hover)]:group-hover:translate-y-0 [@media(hover:hover)]:group-hover:scale-105"
+        >
+          <Disc3 className="w-5 h-5 text-white animate-[spin_6s_linear_infinite]" />
+        </div>
+      </div>
+
+      {/* Textos y metadata */}
+      <div className="mt-3 flex flex-col gap-0.5 min-w-0">
+        <span
+          title={trackName}
+          className="text-sm font-semibold text-white/90 truncate transition-colors [@media(hover:hover)]:group-hover:text-white"
+        >
+          {trackName}
+        </span>
+        <span title={artistName} className="text-xs text-neutral-400 truncate">
+          {artistName}
+        </span>
+      </div>
+    </NavLink>
+  );
+};

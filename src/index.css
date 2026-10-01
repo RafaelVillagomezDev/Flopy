@@ -4,6 +4,8 @@
   /* 1. Colores Globales */
   /* Reemplaza los códigos hexadecimales por los de tu diseño */
   --color-brand-red: #ef4444;       /* Tu color activo */
+  --color-brand-red-hover: #dc2626; /* Hover recomendado (red-600) */
+  --color-brand-red-active: #b91c1c;/* Active / Pressed (red-700) */
   --color-brand-dark: #020617;      /* Fondo principal */
   --color-brand-surface: #0f172a;   /* Fondo para Sidebar y tarjetas */
   --color-brand-text: #f8fafc;      /* Texto principal */

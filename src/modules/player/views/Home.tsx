@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import type { AppDispatch, RootState } from '@/store/store';
-import { fetchArtists } from '@modules/player/player.slice';
+import { fetchArtists, fetchRandomSongs } from '@modules/player/player.slice';
 import { SearchBar } from '@/components/ui/SearchBar';
+import { AlbumCard } from '@/components/ui/AlbumCard';
+import { CardLayout } from '@/components/layout/CardLayout';
 
 export const Home: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -22,8 +24,18 @@ export const Home: React.FC = () => {
     dispatch(fetchArtists(formattedTerm));
   };
 
+  useEffect(() => {
+    if (currentItem && currentItem.length > 0) return;
+
+    const promise = dispatch(fetchRandomSongs());
+
+    return () => {
+      promise.abort();
+    };
+  }, [dispatch, currentItem]);
+
   return (
-    <div className="max-w-md mx-auto p-4 space-y-4">
+    <div className="max-w-full mx-auto p-6">
       {/* Formulario de búsqueda */}
       <SearchBar
         searchTerm={searchTerm}
@@ -32,45 +44,33 @@ export const Home: React.FC = () => {
         loading={Boolean(loading)}
       />
 
-      {/* Manejo de error */}
-      {Boolean(error) && (
-        <div className="p-3 text-sm text-red-700 bg-red-100 rounded-lg">
+
+      {/* Estado de error */}
+      {Boolean(error) && !loading && (
+        <div className="p-4 bg-red-950/40 border border-red-800 rounded-xl text-red-300 text-sm">
           {String(error)}
         </div>
       )}
 
-      {/* Listado de resultados */}
-      <div className="space-y-2">
-        {currentItem && currentItem.length > 0 ? (
-          currentItem.map((item, index) => {
-            const title =
-              item.wrapperType === 'track' ? item.trackName : item.collectionName;
+      {/* Grid de resultados */}
+      {!loading && currentItem && currentItem.length > 0 && (
+        <CardLayout>
+          {currentItem.map((item) => (
+            <AlbumCard
+              key={item.trackId}
+              to={`/track/${item.trackId}`}
+              src={item.artworkUrl100}
+              artistName={item.artistName}
+              trackName={item.trackName}
+            />
+          ))}
+        </CardLayout>
+      )}
 
-            return (
-              <div
-                key={index}
-                className="flex items-center gap-3 p-3 border rounded-lg shadow-sm bg-white"
-              >
-                <img
-                  src={item.artworkUrl100}
-                  alt={item.artistName}
-                  className="w-24 h-24 rounded-lg object-cover flex-shrink-0"
-                />
-                <div className="min-w-0 flex-1">
-                  <p className="font-semibold text-sm truncate">{title}</p>
-                  <p className="text-xs text-gray-500 truncate">{item.artistName}</p>
-                  <span className="text-[10px] uppercase font-bold text-indigo-600">
-                    {item.trackName}
-                  </span>
-
-                </div>
-              </div>
-            );
-          })
-        ) : (
-          !loading && <p className="text-sm text-gray-400">No hay resultados para mostrar.</p>
-        )}
-      </div>
+      {/* Sin resultados */}
+      {!loading && !error && currentItem?.length === 0 && (
+        <p className="text-neutral-400 text-sm">No se encontraron pistas disponibles.</p>
+      )}
     </div>
   );
 };

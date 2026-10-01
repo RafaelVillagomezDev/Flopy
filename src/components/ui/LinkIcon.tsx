@@ -42,7 +42,7 @@ export const LinkIcon: React.FC<LinkIconProps> = ({
       className={({ isActive }) =>
         `flex items-center no-underline gap-3 px-4 py-2.5 rounded-md font-semibold transition-colors duration-200  ${
           isActive
-            ? 'bg-red-500 text-white shadow-sm'
+            ? 'bg-brand-red-active text-white shadow-sm'
             : 'text-slate-400 hover:bg-slate-800 hover:text-white'
         } ${className}`
       }
