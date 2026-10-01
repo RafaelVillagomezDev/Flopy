@@ -1,5 +1,7 @@
 import { Sidebar } from '@components/ui/Sidebar'; // Tu menú con componentes compuestos
 import type { ReactNode } from 'react';
+import { PlayerBar } from '@components/ui/PlayerBar'; 
+
 
 interface DashboardLayoutProps {
     children: ReactNode;
@@ -28,9 +30,10 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
             </aside>
 
             {/* REPRODUCTOR INFERIOR: Estático */}
-            <footer className="col-span-3 row-start-2 bg-[#282828] border-t border-gray-700 p-4 z-10">
+            <aside className="col-span-3 row-start-2 bg-[#282828] border-t border-gray-700 p-4 z-10">
                 {/* Componente del reproductor */}
-            </footer>
+                <PlayerBar/>
+            </aside>
 
         </div>
     );
