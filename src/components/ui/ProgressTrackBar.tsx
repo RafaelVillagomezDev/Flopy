@@ -48,7 +48,7 @@ export const ProgressTrackBar: React.FC<ProgressTrackBarProps> = ({
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center bg-neutral-800 text-neutral-600 text-xs">
-            Sin carátula
+            Sin portada
           </div>
         )}
       </div>
