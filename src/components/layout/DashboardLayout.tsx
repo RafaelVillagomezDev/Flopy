@@ -28,6 +28,7 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
             <aside className="hidden lg:block lg:col-start-3 row-start-1 overflow-y-auto bg-black p-4 border-l border-gray-800">
                 <h2 className="font-bold mb-4">Top Streams</h2>
                 {/* Componente de listas derecha */}
+                
             </aside>
 
             {/* REPRODUCTOR INFERIOR: Ocupa todo el ancho inferior dinámicamente */}

@@ -11,9 +11,9 @@ export const artistService = {
       },
     };
   },
-  getRandomSongs: (options?: SearchOptions) => {
+  getRandomAlbums: (options?: SearchOptions) => {
     return {
-      url: `https://itunes.apple.com/es/rss/topsongs/limit=50/json`,
+      url: `https://itunes.apple.com/es/rss/topalbums/limit=50/json`,
       options: {
         method: 'GET',
         signal: options?.signal,

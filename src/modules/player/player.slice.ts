@@ -1,47 +1,68 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { artistService } from './services/artist.service';
 
-interface BaseMedia {
+// ==========================================
+// INTERFACES Y TIPOS
+// ==========================================
+
+export interface TrackItem {
+  wrapperType: 'track';
   artistId: number;
   artistName: string;
-  releaseDate: string;
-  artworkUrl100: string;
-  previewUrl: string;
-}
-
-interface TrackItem extends BaseMedia {
-  wrapperType: 'track';
   trackId: number;
   trackName: string;
   trackViewUrl: string;
+  previewUrl: string;
+  artworkUrl100: string;
+  releaseDate: string;
+  // Campos opcionales del álbum al que pertenece la pista
+  collectionId?: number;
   collectionName?: string;
+  collectionViewUrl?: string;
+  albumArtwork?: string;
+}
+
+export interface AlbumItem {
+  wrapperType: 'collection';
+  collectionId: number;
+  collectionName: string;
+  artistId: number;
+  artistName: string;
+  artworkUrl: string; 
+  collectionViewUrl: string;
+  releaseDate: string;
+  trackCount?: number;
 }
 
 
-
-// Tipo final para la respuesta dependiendo de respuesta
-type ItunesItem = TrackItem;
-
+export type ItunesItem = TrackItem | AlbumItem;
 
 export interface PlayerState {
   currentItem: ItunesItem[] | null;
   isPlaying: boolean;
-  status: 'idle' | 'loading' | 'failed';
-  loading: true | false | unknown,
-  error: string | null | unknown
+  status: 'idle' | 'loading' | 'succeeded' | 'failed';
+  loading: boolean;
+  error: string | null;
 }
 
 const initialState: PlayerState = {
   currentItem: null,
   isPlaying: false,
   status: 'idle',
-  loading: undefined,
-  error: null
+  loading: false,
+  error: null,
 };
 
-// FUNCIONES ASINCRONAS MANEJADAS POR REDUX TOOLKIT
+// ==========================================
+// FUNCIONES ASÍNCRONAS (THUNKS)
+// ==========================================
 
-export const fetchArtists = createAsyncThunk(
+// 1. Busca canciones (API de búsqueda normal de iTunes)
+export const fetchArtists = createAsyncThunk<
+  ItunesItem[],
+  string,
+  { rejectValue: string }
+>(
   'artist/fetchArtists',
   async (searchTerm: string, { signal, rejectWithValue }) => {
     const { url, options } = artistService.searchArtists(searchTerm, { signal });
@@ -54,22 +75,35 @@ export const fetchArtists = createAsyncThunk(
       }
 
       const data = await response.json();
-      const rawResults = (data.results || []) as ItunesItem[];
+      const rawResults = (data.results || []) as any[];
 
-      // Mapeamos los resultados sustituyendo la resolución en la URL del artwork
-      const formattedResults: ItunesItem[] = rawResults.map((item) => ({
-        ...item,
-        artworkUrl100: item.artworkUrl100
-          ? item.artworkUrl100.replace(/100x100/g, '200x200')
-          : item.artworkUrl100,
-      }));
+      const formattedResults: TrackItem[] = rawResults.map((item) => {
+        const rawArtwork = item.artworkUrl100 || '';
+        const artwork200 = rawArtwork
+          ? rawArtwork.replace(/\d+x\d+bb/g, '200x200bb').replace(/\d+x\d+/g, '200x200')
+          : '';
+
+        return {
+          wrapperType: 'track' as const,
+          artistId: item.artistId || 0,
+          artistName: item.artistName || 'Artista desconocido',
+          trackId: item.trackId || 0,
+          trackName: item.trackName || 'Canción',
+          trackViewUrl: item.trackViewUrl || '',
+          releaseDate: item.releaseDate || '',
+          artworkUrl100: artwork200,
+          previewUrl: item.previewUrl || '',
+          collectionId: item.collectionId,
+          collectionName: item.collectionName || 'Álbum desconocido',
+          collectionViewUrl: item.collectionViewUrl || '',
+          albumArtwork: artwork200,
+        };
+      });
 
       return formattedResults;
     } catch (error: unknown) {
       if (error instanceof Error) {
-        if (error.name === 'AbortError') {
-          throw error;
-        }
+        if (error.name === 'AbortError') throw error;
         return rejectWithValue(error.message);
       }
       return rejectWithValue('Error inesperado al buscar canciones');
@@ -77,11 +111,15 @@ export const fetchArtists = createAsyncThunk(
   }
 );
 
-
-export const fetchRandomSongs = createAsyncThunk(
-  'artist/fetchRandomSongs',
+// 2. Obtiene álbumes aleatorios (Feed RSS de Top Albums)
+export const fetchRandomAlbums = createAsyncThunk<
+  ItunesItem[],
+  void,
+  { rejectValue: string }
+>(
+  'artist/fetchRandomAlbums',
   async (_, { signal, rejectWithValue }) => {
-    const { url, options } = artistService.getRandomSongs({ signal });
+    const { url, options } = artistService.getRandomAlbums({ signal });
 
     try {
       const response = await fetch(url, options);
@@ -93,73 +131,97 @@ export const fetchRandomSongs = createAsyncThunk(
       const data = await response.json();
       const entries = data.feed?.entry || [];
 
-      // Mapeamos el feed RSS 
-      const formattedResults: ItunesItem[] = entries.map((entry: any) => {
+      const formattedResults: AlbumItem[] = entries
+        // Filtramos para quitar Singles y EPs si solo quieres álbumes completos
+        .filter((entry: any) => !/\s*-\s*(ep|single)\s*$/i.test(entry['im:name']?.label || ''))
+        .map((entry: any) => {
+          const rawArtwork = entry['im:image']?.[2]?.label || entry['im:image']?.[0]?.label || '';
+          const artwork200 = rawArtwork
+            .replace(/\d+x\d+bb/g, '200x200bb')
+            .replace(/\d+x\d+/g, '200x200');
 
-        const rawArtwork = entry['im:image']?.[2]?.label || entry['im:image']?.[0]?.label || '';
+          const collectionHref = entry.link?.attributes?.href || '';
+          const collectionId = Number(entry.id?.attributes?.['im:id'] || collectionHref.split('/id')?.[1]?.split('?')?.[0] || 0);
 
-        return {
-          wrapperType: 'track' as const,
-          artistId: Number(entry['im:artist']?.attributes?.href?.split('/id')?.[1]?.split('?')?.[0] || 0),
-          artistName: entry['im:artist']?.label || 'Artista desconocido',
-          trackId: Number(entry.id?.attributes?.['im:id'] || 0),
-          trackName: entry['im:name']?.label || 'Canción',
-          trackViewUrl: entry.link?.[0]?.attributes?.href || '',
-          releaseDate: entry['im:releaseDate']?.label || '',
-          artworkUrl100: rawArtwork.replace(/\d+x\d+bb/g, '200x200bb').replace(/170x170/g, '200x200'),
-          previewUrl: entry.link?.[1]?.attributes?.href || '',
-        };
-      });
+          const artistHref = entry['im:artist']?.attributes?.href || '';
+          const artistId = Number(artistHref.split('/id')?.[1]?.split('?')?.[0] || 0);
 
+          return {
+            wrapperType: 'collection' as const,
+            collectionId,
+            collectionName: entry['im:name']?.label || 'Álbum desconocido',
+            artistId,
+            artistName: entry['im:artist']?.label || 'Artista desconocido',
+            artworkUrl: artwork200,
+            collectionViewUrl: collectionHref,
+            releaseDate: entry['im:releaseDate']?.label || '',
+            trackCount: Number(entry['im:itemCount']?.label || 0),
+          };
+        });
 
       return formattedResults;
     } catch (error: unknown) {
       if (error instanceof Error) {
-        if (error.name === 'AbortError') {
-          throw error;
-        }
+        if (error.name === 'AbortError') throw error;
         return rejectWithValue(error.message);
       }
-      return rejectWithValue('Error inesperado al buscar canciones aleatorias');
+      return rejectWithValue('Error inesperado al buscar álbumes aleatorios');
     }
   }
 );
+
+// ==========================================
+// SLICE
+// ==========================================
 
 export const playerSlice = createSlice({
   name: 'player',
   initialState,
   reducers: {
-
+    setIsPlaying: (state, action) => {
+      state.isPlaying = action.payload;
+    },
+    resetPlayer: () => initialState,
   },
   extraReducers: (builder) => {
     builder
+      // fetchArtists
       .addCase(fetchArtists.pending, (state) => {
         state.loading = true;
+        state.status = 'loading';
         state.error = null;
       })
       .addCase(fetchArtists.fulfilled, (state, action) => {
         state.loading = false;
-        state.currentItem = action.payload;
+        state.status = 'succeeded';
+        state.currentItem = action.payload; // Guarda Array de TrackItem
       })
       .addCase(fetchArtists.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.error.message || 'Error al buscar pista';
-      });
-    builder
-      .addCase(fetchRandomSongs.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(fetchRandomSongs.fulfilled, (state, action) => {
-        state.loading = false;
-        state.currentItem = action.payload;
-      })
-      .addCase(fetchRandomSongs.rejected, (state, action) => {
         if (action.meta.aborted) return;
         state.loading = false;
-        state.error = (action.payload as string) || action.error.message || null;
+        state.status = 'failed';
+        state.error = action.payload || action.error.message || 'Error al buscar pista';
+      })
+      // fetchRandomAlbums
+      .addCase(fetchRandomAlbums.pending, (state) => {
+        state.loading = true;
+        state.status = 'loading';
+        state.error = null;
+      })
+      .addCase(fetchRandomAlbums.fulfilled, (state, action) => {
+        state.loading = false;
+        state.status = 'succeeded';
+        state.currentItem = action.payload; // Guarda Array de AlbumItem
+      })
+      .addCase(fetchRandomAlbums.rejected, (state, action) => {
+        if (action.meta.aborted) return;
+        state.loading = false;
+        state.status = 'failed';
+        state.error = action.payload || action.error.message || 'Error al buscar álbumes aleatorios';
       });
-  }
-})
+  },
+});
+
+export const { setIsPlaying, resetPlayer } = playerSlice.actions;
 
 export default playerSlice.reducer;
