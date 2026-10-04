@@ -4,6 +4,7 @@ import {
   togglePlay,
   playNextTrack,
   playPreviousTrack,
+  toggleShuffle
 } from '@/modules/player/player.slice';
 import { ControlPlayer } from './ControlPlayer';
 import { PlayerOptions } from './PlayerOptions';
@@ -12,7 +13,7 @@ import { useAppDispatch, useAppSelector } from '@hooks/hooks';
 
 export const PlayerBar: React.FC = () => {
   const dispatch = useAppDispatch();
-  const { isPlaying, currentTime, duration, currentTrack } = useAppSelector(
+  const { isPlaying, currentTime, duration, currentTrack ,isShuffle } = useAppSelector(
     (state) => state.player
   );
 
@@ -42,7 +43,7 @@ export const PlayerBar: React.FC = () => {
         onSeek={handleSeek}
         toAlbum={currentToAlbum}
       />
-      <PlayerOptions />
+      <PlayerOptions randomSong={() => dispatch(toggleShuffle())} isShuffle={isShuffle} />
     </div>
   );
 };
