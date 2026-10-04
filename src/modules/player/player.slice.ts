@@ -18,6 +18,7 @@ export interface PlayerState {
   // Catalogo de pistas de un álbum específico
   albumTracks: TrackItem[] | null;
   randomAlbums:ItunesItem[] | null;
+  queue: TrackItem[];
 
 
   // Estado del Reproductor en tiempo real
@@ -48,7 +49,8 @@ const initialState: PlayerState = {
   seekTime: null,
   searchTerm: '',
   isSearchActive: false,
-  randomAlbums:null
+  randomAlbums:null,
+  queue: [],
   
 };
 
@@ -230,8 +232,20 @@ export const playerSlice = createSlice({
   initialState,
   reducers: {
   
-    setCurrentTrack: (state, action: PayloadAction<TrackItem>) => {
-      state.currentTrack = action.payload;
+    setCurrentTrack: (
+      state,
+      action: PayloadAction<{ track: TrackItem; queue?: TrackItem[] } | TrackItem>
+    ) => {
+  
+      if ('track' in action.payload) {
+        state.currentTrack = action.payload.track;
+        if (action.payload.queue && action.payload.queue.length > 0) {
+          state.queue = action.payload.queue; // 👈 Bloqueamos la cola del reproductor
+        }
+      } else {
+        state.currentTrack = action.payload;
+      }
+
       state.isPlaying = true;
       state.currentTime = 0;
       state.seekTime = null;
@@ -289,6 +303,47 @@ export const playerSlice = createSlice({
       state.seekTime = null;
     },
     resetPlayer: () => initialState,
+
+   playNextTrack: (state) => {
+      // 👈 Siempre lee de state.queue, da igual a dónde navegue el usuario
+      if (!state.currentTrack || state.queue.length === 0) return;
+
+      const currentIndex = state.queue.findIndex(
+        (track) => track.trackId === state.currentTrack?.trackId
+      );
+
+      const nextIndex = currentIndex === -1 ? 0 : (currentIndex + 1) % state.queue.length;
+
+      state.currentTrack = state.queue[nextIndex];
+      state.isPlaying = true;
+      state.currentTime = 0;
+      state.seekTime = null;
+    },
+
+    playPreviousTrack: (state) => {
+      if (!state.currentTrack || state.queue.length === 0) return;
+
+      // Si lleva más de 3 segundos, reiniciar la pista actual
+      if (state.currentTime > 3) {
+        state.currentTime = 0;
+        state.seekTime = 0;
+        return;
+      }
+
+      const currentIndex = state.queue.findIndex(
+        (track) => track.trackId === state.currentTrack?.trackId
+      );
+
+      const prevIndex =
+        currentIndex === -1
+          ? 0
+          : (currentIndex - 1 + state.queue.length) % state.queue.length;
+
+      state.currentTrack = state.queue[prevIndex];
+      state.isPlaying = true;
+      state.currentTime = 0;
+      state.seekTime = null;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -358,7 +413,9 @@ export const {
   setSearchTerm,
   setIsSearchActive,
   resetSearch,
-  clearSearch
+  clearSearch,
+  playNextTrack,
+  playPreviousTrack
 } = playerSlice.actions;
 
 export default playerSlice.reducer;

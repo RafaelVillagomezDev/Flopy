@@ -40,7 +40,10 @@ export const Album: React.FC = () => {
         if (currentTrack?.trackId === track.trackId) {
             dispatch(togglePlay());
         } else {
-            dispatch(setCurrentTrack(track));
+            dispatch(setCurrentTrack({
+                track,
+                queue: albumTracks || []
+            }));
         }
     };
 
