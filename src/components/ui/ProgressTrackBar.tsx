@@ -1,10 +1,10 @@
 import type React from 'react';
 
 interface ProgressTrackBarProps {
-  srcImage?: string;
-  trackName?: string;
-  currentTrackMinutes?: number;
-  trackDurationMinutes?: number;
+  srcImage: string;
+  trackName: string;
+  currentTrackMinutes: number;
+  trackDurationMinutes: number;
   onSeek?: (percentage: number) => void;
 }
 

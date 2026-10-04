@@ -1,4 +1,4 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk, type PayloadAction } from '@reduxjs/toolkit';
 import { artistService } from './services/artist.service';
 
 // ==========================================
@@ -15,7 +15,6 @@ export interface TrackItem {
   previewUrl: string;
   artworkUrl100: string;
   releaseDate: string;
-  // Campos opcionales del álbum al que pertenece la pista
   collectionId?: number;
   collectionName?: string;
   collectionViewUrl?: string;
@@ -34,30 +33,40 @@ export interface AlbumItem {
   trackCount?: number;
 }
 
-
 export type ItunesItem = TrackItem | AlbumItem;
 
 export interface PlayerState {
-  currentItem: ItunesItem[] | null;
-  isPlaying: boolean;
+  // Catálogo de búsqueda / feed
+  searchResults: ItunesItem[] | null;
   status: 'idle' | 'loading' | 'succeeded' | 'failed';
   loading: boolean;
   error: string | null;
+
+  // Estado del Reproductor en tiempo real
+  currentTrack: TrackItem | null;
+  isPlaying: boolean;
+  isMuted: boolean;
+  currentTime: number;
+  duration: number;
+  seekTime: number | null;
 }
 
 const initialState: PlayerState = {
-  currentItem: null,
-  isPlaying: false,
+  searchResults: null,
   status: 'idle',
   loading: false,
   error: null,
+
+  currentTrack: null,
+  isPlaying: false,
+  isMuted: false,
+  currentTime: 0,
+  duration: 0,
+  seekTime: null,
 };
 
-// ==========================================
-// FUNCIONES ASÍNCRONAS (THUNKS)
-// ==========================================
+//THUNKS ASYNC PARA FETCH DE ARTISTAS Y ALBUMS ALEATORIOS
 
-// 1. Busca canciones (API de búsqueda normal de iTunes)
 export const fetchArtists = createAsyncThunk<
   ItunesItem[],
   string,
@@ -69,7 +78,6 @@ export const fetchArtists = createAsyncThunk<
 
     try {
       const response = await fetch(url, options);
-
       if (!response.ok) {
         return rejectWithValue(`Error ${response.status}: ${response.statusText}`);
       }
@@ -111,7 +119,6 @@ export const fetchArtists = createAsyncThunk<
   }
 );
 
-// 2. Obtiene álbumes aleatorios (Feed RSS de Top Albums)
 export const fetchRandomAlbums = createAsyncThunk<
   ItunesItem[],
   void,
@@ -123,7 +130,6 @@ export const fetchRandomAlbums = createAsyncThunk<
 
     try {
       const response = await fetch(url, options);
-
       if (!response.ok) {
         return rejectWithValue(`Error ${response.status}: ${response.statusText}`);
       }
@@ -132,7 +138,6 @@ export const fetchRandomAlbums = createAsyncThunk<
       const entries = data.feed?.entry || [];
 
       const formattedResults: AlbumItem[] = entries
-        // Filtramos para quitar Singles y EPs si solo quieres álbumes completos
         .filter((entry: any) => !/\s*-\s*(ep|single)\s*$/i.test(entry['im:name']?.label || ''))
         .map((entry: any) => {
           const rawArtwork = entry['im:image']?.[2]?.label || entry['im:image']?.[0]?.label || '';
@@ -170,16 +175,44 @@ export const fetchRandomAlbums = createAsyncThunk<
   }
 );
 
-// ==========================================
-// SLICE
-// ==========================================
+// SLICE CON ACCIONES MULTIMEDIA
+
 
 export const playerSlice = createSlice({
   name: 'player',
   initialState,
   reducers: {
-    setIsPlaying: (state, action) => {
+    // 1. Asignar la pista elegida e iniciar reproducción
+    setCurrentTrack: (state, action: PayloadAction<TrackItem>) => {
+      state.currentTrack = action.payload;
+      state.isPlaying = true;
+      state.currentTime = 0;
+      state.seekTime = null;
+    },
+    // 2. Play / Pausa alternativo
+    togglePlay: (state) => {
+      if (state.currentTrack) {
+        state.isPlaying = !state.isPlaying;
+      }
+    },
+    setIsPlaying: (state, action: PayloadAction<boolean>) => {
       state.isPlaying = action.payload;
+    },
+    // 3. Mute / Unmute
+    toggleMute: (state) => {
+      state.isMuted = !state.isMuted;
+    },
+    // 4. Actualización continua emitida por el <video>
+    setTimeUpdate: (state, action: PayloadAction<{ currentTime: number; duration: number }>) => {
+      state.currentTime = action.payload.currentTime;
+      state.duration = action.payload.duration;
+    },
+    // 5. Señal para que el <video> salte al segundo elegido
+    requestSeek: (state, action: PayloadAction<number>) => {
+      state.seekTime = action.payload;
+    },
+    resetSeek: (state) => {
+      state.seekTime = null;
     },
     resetPlayer: () => initialState,
   },
@@ -194,7 +227,7 @@ export const playerSlice = createSlice({
       .addCase(fetchArtists.fulfilled, (state, action) => {
         state.loading = false;
         state.status = 'succeeded';
-        state.currentItem = action.payload; // Guarda Array de TrackItem
+        state.searchResults = action.payload;
       })
       .addCase(fetchArtists.rejected, (state, action) => {
         if (action.meta.aborted) return;
@@ -211,7 +244,7 @@ export const playerSlice = createSlice({
       .addCase(fetchRandomAlbums.fulfilled, (state, action) => {
         state.loading = false;
         state.status = 'succeeded';
-        state.currentItem = action.payload; // Guarda Array de AlbumItem
+        state.searchResults = action.payload;
       })
       .addCase(fetchRandomAlbums.rejected, (state, action) => {
         if (action.meta.aborted) return;
@@ -222,6 +255,15 @@ export const playerSlice = createSlice({
   },
 });
 
-export const { setIsPlaying, resetPlayer } = playerSlice.actions;
+export const {
+  setCurrentTrack,
+  togglePlay,
+  setIsPlaying,
+  toggleMute,
+  setTimeUpdate,
+  requestSeek,
+  resetSeek,
+  resetPlayer,
+} = playerSlice.actions;
 
 export default playerSlice.reducer;

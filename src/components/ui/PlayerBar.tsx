@@ -1,14 +1,30 @@
+
+import { requestSeek, toggleMute, togglePlay } from "@/modules/player/player.slice";
 import { ControlPlayer } from "./ControlPlayer";
 import { PlayerOptions } from "./PlayerOptions";
 import { ProgressTrackBar } from "./ProgressTrackBar";
+import { useAppDispatch, useAppSelector } from "@hooks/hooks";
+
+
+
+
 
 export const PlayerBar: React.FC = () => {
+
+    const dispatch = useAppDispatch();
+    const { isPlaying, isMuted, currentTime, duration, currentTrack } = useAppSelector((state) => state.player);
+   
+
+    const handleSeek = (percentage: number) => {
+        if (duration > 0) {
+            dispatch(requestSeek((percentage / 100) * duration));
+        }
+    };
+
     return (
-    <div className="flex items-center justify-between w-full h-full ">
-        <ControlPlayer isPlaying={false} onPlayToggle={function (): void {
-            throw new Error("Function not implemented.")
-        }} />
-        <ProgressTrackBar/>
-        <PlayerOptions/>
-    </div>)
+        <div className="flex items-center justify-between w-full h-full ">
+            <ControlPlayer isPlaying={isPlaying} onPlayToggle={() => dispatch(togglePlay())} />
+            <ProgressTrackBar srcImage={currentTrack?.artworkUrl100 || ""} trackName={currentTrack?.trackName || "Sin reproducción"} currentTrackMinutes={currentTime} trackDurationMinutes={duration} onSeek={handleSeek}  />
+            <PlayerOptions isMuted={isMuted} onMuteToggle={() => dispatch(toggleMute())} />
+        </div>)
 }

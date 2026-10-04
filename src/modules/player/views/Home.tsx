@@ -8,26 +8,26 @@ import { CardLayout } from '@/components/layout/CardLayout';
 
 export const Home: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
-  
+
   // Flag para saber si hay una búsqueda activa
-  const [isSearchActive, setIsSearchActive] = useState(false); 
-  
+  const [isSearchActive, setIsSearchActive] = useState(false);
+
   const dispatch = useDispatch<AppDispatch>();
 
-  const { currentItem, loading, error } = useSelector(
+  const { searchResults, loading, error } = useSelector(
     (state: RootState) => state.player
   );
 
   const activePromiseRef = useRef<{ abort: () => void } | null>(null);
 
   const loadRandomAlbums = useCallback((force = false) => {
-    if (!force && currentItem && currentItem.length > 0) return;
+    if (!force && searchResults && searchResults.length > 0) return;
 
     activePromiseRef.current?.abort?.();
     const promise = dispatch(fetchRandomAlbums());
     activePromiseRef.current = promise;
     return promise;
-  }, [dispatch, currentItem]);
+  }, [dispatch, searchResults]);
 
   useEffect(() => {
     loadRandomAlbums();
@@ -78,10 +78,10 @@ export const Home: React.FC = () => {
       )}
 
       {/* Grid de resultados controlado por isSearchActive */}
-      {!loading && currentItem && currentItem.length > 0 && (
+      {!loading && searchResults && searchResults.length > 0 && (
         <div className="mt-6">
           <CardLayout>
-            {currentItem
+            {searchResults
               // Si NO hay búsqueda, filtramos solo álbumes. Si hay búsqueda, dejamos pasar todo (true)
               .filter((item) => isSearchActive ? true : item.wrapperType === 'collection')
               .map((item) => {
@@ -108,7 +108,7 @@ export const Home: React.FC = () => {
         </div>
       )}
 
-      {!loading && !error && currentItem?.length === 0 && (
+      {!loading && !error && searchResults?.length === 0 && (
         <p className="text-neutral-400 text-sm mt-6">
           No se encontraron pistas disponibles.
         </p>
