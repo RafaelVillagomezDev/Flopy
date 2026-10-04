@@ -3,9 +3,8 @@ import { artistService } from './services/artist.service';
 import type { TrackItem } from '@/types/track.type';
 import type { AlbumItem } from '@/types/album.type';
 
-// ==========================================
 // INTERFACES Y TIPOS
-// ==========================================
+
 
 export type ItunesItem = TrackItem | AlbumItem;
 
@@ -17,9 +16,8 @@ export interface PlayerState {
   error: string | null;
   // Catalogo de pistas de un álbum específico
   albumTracks: TrackItem[] | null;
-  randomAlbums:ItunesItem[] | null;
+  randomAlbums: ItunesItem[] | null;
   queue: TrackItem[];
-
 
   // Estado del Reproductor en tiempo real
   currentTrack: TrackItem | null;
@@ -32,6 +30,10 @@ export interface PlayerState {
   searchTerm: string;
   isSearchActive: boolean;
   
+  // Controles de Aleatorio (Shuffle)
+  isShuffle: boolean;
+  shuffleHistory: number[];
+  playedHistory: number[];
 }
 
 const initialState: PlayerState = {
@@ -49,12 +51,15 @@ const initialState: PlayerState = {
   seekTime: null,
   searchTerm: '',
   isSearchActive: false,
-  randomAlbums:null,
+  randomAlbums: null,
   queue: [],
-  
+  isShuffle: false,
+  shuffleHistory: [],
+  playedHistory: [],
 };
 
-//THUNKS ASYNC PARA FETCH DE ARTISTAS Y ALBUMS ALEATORIOS
+
+// THUNKS ASYNC
 
 export const fetchArtists = createAsyncThunk<
   ItunesItem[],
@@ -164,9 +169,6 @@ export const fetchRandomAlbums = createAsyncThunk<
   }
 );
 
-
-// En player.slice.ts
-
 export const fetchAlbumTracks = createAsyncThunk<
   TrackItem[],
   number,
@@ -186,7 +188,6 @@ export const fetchAlbumTracks = createAsyncThunk<
       const data = await response.json();
       const results = (data.results || []) as any[];
 
-      // results[0] suele ser la info del álbum. Filtramos solo los tracks que tengan previewUrl
       const tracks: TrackItem[] = results
         .filter((item) => item.wrapperType === 'track' && Boolean(item.previewUrl))
         .map((item) => {
@@ -236,14 +237,19 @@ export const playerSlice = createSlice({
       state,
       action: PayloadAction<{ track: TrackItem; queue?: TrackItem[] } | TrackItem>
     ) => {
-  
       if ('track' in action.payload) {
         state.currentTrack = action.payload.track;
         if (action.payload.queue && action.payload.queue.length > 0) {
-          state.queue = action.payload.queue; // 👈 Bloqueamos la cola del reproductor
+          state.queue = action.payload.queue; 
         }
       } else {
         state.currentTrack = action.payload;
+      }
+
+      // Sincronizar identificadores de aleatorio con la nueva canción
+      if (state.currentTrack) {
+        state.shuffleHistory = [state.currentTrack.trackId];
+        state.playedHistory = [state.currentTrack.trackId];
       }
 
       state.isPlaying = true;
@@ -261,7 +267,6 @@ export const playerSlice = createSlice({
     },
 
     setVolume: (state, action: PayloadAction<number>) => {
-      // Clampeamos el valor para que siempre esté entre 0 y 1
       const safeVolume = Math.max(0, Math.min(1, action.payload));
       state.volume = safeVolume;
       if (safeVolume > 0 && state.isMuted) {
@@ -304,17 +309,57 @@ export const playerSlice = createSlice({
     },
     resetPlayer: () => initialState,
 
-   playNextTrack: (state) => {
-      // 👈 Siempre lee de state.queue, da igual a dónde navegue el usuario
+
+    toggleShuffle: (state) => {
+      state.isShuffle = !state.isShuffle;
+
+      if (state.isShuffle && state.currentTrack) {
+        state.shuffleHistory = [state.currentTrack.trackId];
+        state.playedHistory = [state.currentTrack.trackId];
+      } else {
+        state.shuffleHistory = [];
+        state.playedHistory = [];
+      }
+    },
+
+    playNextTrack: (state) => {
       if (!state.currentTrack || state.queue.length === 0) return;
 
-      const currentIndex = state.queue.findIndex(
-        (track) => track.trackId === state.currentTrack?.trackId
-      );
+      // MODO SHUFFLE
+      if (state.isShuffle) {
+        if (state.queue.length === 1) {
+          state.currentTime = 0;
+          state.seekTime = 0;
+          return;
+        }
 
-      const nextIndex = currentIndex === -1 ? 0 : (currentIndex + 1) % state.queue.length;
+        let availableTracks = state.queue.filter(
+          (track) => !state.playedHistory.includes(track.trackId)
+        );
 
-      state.currentTrack = state.queue[nextIndex];
+        if (availableTracks.length === 0) {
+          state.playedHistory = [state.currentTrack.trackId];
+          availableTracks = state.queue.filter(
+            (track) => track.trackId !== state.currentTrack?.trackId
+          );
+        }
+
+        const randomIndex = Math.floor(Math.random() * availableTracks.length);
+        const nextTrack = availableTracks[randomIndex];
+
+        state.playedHistory.push(nextTrack.trackId);
+        state.shuffleHistory.push(nextTrack.trackId);
+
+        state.currentTrack = nextTrack;
+      } 
+      else {
+        const currentIndex = state.queue.findIndex(
+          (track) => track.trackId === state.currentTrack?.trackId
+        );
+        const nextIndex = currentIndex === -1 ? 0 : (currentIndex + 1) % state.queue.length;
+        state.currentTrack = state.queue[nextIndex];
+      }
+
       state.isPlaying = true;
       state.currentTime = 0;
       state.seekTime = null;
@@ -323,31 +368,50 @@ export const playerSlice = createSlice({
     playPreviousTrack: (state) => {
       if (!state.currentTrack || state.queue.length === 0) return;
 
-      // Si lleva más de 3 segundos, reiniciar la pista actual
+      // Reinicio común si lleva > 3s reproduciéndose
       if (state.currentTime > 3) {
         state.currentTime = 0;
         state.seekTime = 0;
         return;
       }
 
-      const currentIndex = state.queue.findIndex(
-        (track) => track.trackId === state.currentTrack?.trackId
-      );
+      // MODO SHUFFLE
+      if (state.isShuffle) {
+        if (state.shuffleHistory.length > 1) {
+          state.shuffleHistory.pop(); 
+          const previousTrackId = state.shuffleHistory[state.shuffleHistory.length - 1];
 
-      const prevIndex =
-        currentIndex === -1
-          ? 0
-          : (currentIndex - 1 + state.queue.length) % state.queue.length;
+          const previousTrack = state.queue.find((t) => t.trackId === previousTrackId);
+          if (previousTrack) {
+            state.currentTrack = previousTrack;
+          }
+        } else {
+          state.currentTime = 0;
+          state.seekTime = 0;
+          return;
+        }
+      } 
+      // MODO SECUENCIAL
+      else {
+        const currentIndex = state.queue.findIndex(
+          (track) => track.trackId === state.currentTrack?.trackId
+        );
+        const prevIndex =
+          currentIndex === -1
+            ? 0
+            : (currentIndex - 1 + state.queue.length) % state.queue.length;
 
-      state.currentTrack = state.queue[prevIndex];
+        state.currentTrack = state.queue[prevIndex];
+      }
+
       state.isPlaying = true;
       state.currentTime = 0;
       state.seekTime = null;
     },
   },
+
   extraReducers: (builder) => {
     builder
-      // fetchArtists
       .addCase(fetchArtists.pending, (state) => {
         state.loading = true;
         state.status = 'loading';
@@ -364,7 +428,6 @@ export const playerSlice = createSlice({
         state.status = 'failed';
         state.error = action.payload || action.error.message || 'Error al buscar pista';
       })
-      // fetchRandomAlbums
       .addCase(fetchRandomAlbums.pending, (state) => {
         state.loading = true;
         state.status = 'loading';
@@ -380,10 +443,7 @@ export const playerSlice = createSlice({
         state.loading = false;
         state.status = 'failed';
         state.error = action.payload || action.error.message || 'Error al buscar álbumes aleatorios';
-      });
-    // fetchAlbumTracks
-    // Dentro de extraReducers:
-    builder
+      })
       .addCase(fetchAlbumTracks.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -415,7 +475,8 @@ export const {
   resetSearch,
   clearSearch,
   playNextTrack,
-  playPreviousTrack
+  playPreviousTrack,
+  toggleShuffle 
 } = playerSlice.actions;
 
 export default playerSlice.reducer;
