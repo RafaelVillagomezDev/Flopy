@@ -17,6 +17,7 @@ export interface PlayerState {
   error: string | null;
   // Catalogo de pistas de un álbum específico
   albumTracks: TrackItem[] | null;
+  randomAlbums:ItunesItem[] | null;
 
 
   // Estado del Reproductor en tiempo real
@@ -47,6 +48,7 @@ const initialState: PlayerState = {
   seekTime: null,
   searchTerm: '',
   isSearchActive: false,
+  randomAlbums:null
   
 };
 
@@ -253,6 +255,13 @@ export const playerSlice = createSlice({
       }
     },
 
+    clearSearch: (state) => {
+      state.searchTerm = '';
+      state.isSearchActive = false;
+      state.searchResults = null;
+      state.error = null;
+    },
+
     setSearchTerm: (state, action: PayloadAction<string>) => {
       state.searchTerm = action.payload;
     },
@@ -309,7 +318,7 @@ export const playerSlice = createSlice({
       .addCase(fetchRandomAlbums.fulfilled, (state, action) => {
         state.loading = false;
         state.status = 'succeeded';
-        state.searchResults = action.payload;
+        state.randomAlbums = action.payload;
       })
       .addCase(fetchRandomAlbums.rejected, (state, action) => {
         if (action.meta.aborted) return;
@@ -349,6 +358,7 @@ export const {
   setSearchTerm,
   setIsSearchActive,
   resetSearch,
+  clearSearch
 } = playerSlice.actions;
 
 export default playerSlice.reducer;
