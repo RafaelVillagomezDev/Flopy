@@ -13,7 +13,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
   onSearchChange,
   onSearchSubmit,
   loading = false,
-  placeholder = "Buscar canción o audiolibro...",
+  placeholder = "Buscar canción o album...",
 }) => {
   return (
     <form onSubmit={onSearchSubmit} className="flex gap-2">

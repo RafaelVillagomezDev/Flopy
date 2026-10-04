@@ -27,6 +27,9 @@ export interface PlayerState {
   duration: number;
   seekTime: number | null;
   volume: number;
+  searchTerm: string;
+  isSearchActive: boolean;
+  
 }
 
 const initialState: PlayerState = {
@@ -42,6 +45,9 @@ const initialState: PlayerState = {
   currentTime: 0,
   duration: 0,
   seekTime: null,
+  searchTerm: '',
+  isSearchActive: false,
+  
 };
 
 //THUNKS ASYNC PARA FETCH DE ARTISTAS Y ALBUMS ALEATORIOS
@@ -246,6 +252,17 @@ export const playerSlice = createSlice({
         state.isMuted = false;
       }
     },
+
+    setSearchTerm: (state, action: PayloadAction<string>) => {
+      state.searchTerm = action.payload;
+    },
+    setIsSearchActive: (state, action: PayloadAction<boolean>) => {
+      state.isSearchActive = action.payload;
+    },
+    resetSearch: (state) => {
+      state.searchTerm = '';
+      state.isSearchActive = false;
+    },
  
     toggleMute: (state) => {
       state.isMuted = !state.isMuted;
@@ -329,6 +346,9 @@ export const {
   requestSeek,
   resetSeek,
   resetPlayer,
+  setSearchTerm,
+  setIsSearchActive,
+  resetSearch,
 } = playerSlice.actions;
 
 export default playerSlice.reducer;

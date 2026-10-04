@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import type { AppDispatch, RootState } from '@/store/store';
+import { Loader2 } from 'lucide-react';
 import {
     fetchAlbumTracks,
     setCurrentTrack,
@@ -11,6 +12,7 @@ import type { TrackItem } from '@/types/track.type';
 
 import { ListTracks } from '@/components/ui/ListTracks';
 import { AlbumCardHead } from '@/components/ui/AlbumCardHead';
+import { Loader } from '@/components/ui/Loader';
 
 export const Album: React.FC = () => {
 
@@ -43,7 +45,11 @@ export const Album: React.FC = () => {
     };
 
     if (loading) {
-        return <div className="p-6 text-neutral-400">Cargando pistas del álbum...</div>;
+        return (
+            <Loader icon={Loader2} >
+                <span className='text-white'>Cargando</span>
+            </Loader>
+        )
     }
 
     if (error) {
