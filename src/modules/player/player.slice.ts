@@ -26,6 +26,7 @@ export interface PlayerState {
   currentTime: number;
   duration: number;
   seekTime: number | null;
+  volume: number;
 }
 
 const initialState: PlayerState = {
@@ -37,6 +38,7 @@ const initialState: PlayerState = {
   currentTrack: null,
   isPlaying: false,
   isMuted: false,
+  volume: 0.8,
   currentTime: 0,
   duration: 0,
   seekTime: null,
@@ -235,6 +237,15 @@ export const playerSlice = createSlice({
     setIsPlaying: (state, action: PayloadAction<boolean>) => {
       state.isPlaying = action.payload;
     },
+
+    setVolume: (state, action: PayloadAction<number>) => {
+      // Clampeamos el valor para que siempre esté entre 0 y 1
+      const safeVolume = Math.max(0, Math.min(1, action.payload));
+      state.volume = safeVolume;
+      if (safeVolume > 0 && state.isMuted) {
+        state.isMuted = false;
+      }
+    },
  
     toggleMute: (state) => {
       state.isMuted = !state.isMuted;
@@ -310,6 +321,7 @@ export const playerSlice = createSlice({
 
 export const {
   setCurrentTrack,
+  setVolume,
   togglePlay,
   setIsPlaying,
   toggleMute,

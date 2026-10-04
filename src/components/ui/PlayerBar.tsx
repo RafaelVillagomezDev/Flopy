@@ -12,9 +12,9 @@ import { useAppDispatch, useAppSelector } from "@hooks/hooks";
 export const PlayerBar: React.FC = () => {
 
     const dispatch = useAppDispatch();
-    const { isPlaying, isMuted, currentTime, duration, currentTrack } = useAppSelector((state) => state.player);
+    const { isPlaying, currentTime, duration, currentTrack } = useAppSelector((state) => state.player);
    
-
+    const currentToAlbum = currentTrack?.collectionId ? `/album/${currentTrack.collectionId}` : undefined;
     const handleSeek = (percentage: number) => {
         if (duration > 0) {
             dispatch(requestSeek((percentage / 100) * duration));
@@ -24,7 +24,7 @@ export const PlayerBar: React.FC = () => {
     return (
         <div className="flex items-center justify-between w-full h-full ">
             <ControlPlayer isPlaying={isPlaying} onPlayToggle={() => dispatch(togglePlay())} />
-            <ProgressTrackBar srcImage={currentTrack?.artworkUrl100 || ""} trackName={currentTrack?.trackName || "Sin reproducción"} currentTrackMinutes={currentTime} trackDurationMinutes={duration} onSeek={handleSeek}  />
-            <PlayerOptions isMuted={isMuted} onMuteToggle={() => dispatch(toggleMute())} />
+            <ProgressTrackBar srcImage={currentTrack?.artworkUrl100 || ""} trackName={currentTrack?.trackName || "Sin reproducción"} currentTrackMinutes={currentTime} trackDurationMinutes={duration} onSeek={handleSeek} toAlbum={currentToAlbum} />
+            <PlayerOptions  />
         </div>)
 }

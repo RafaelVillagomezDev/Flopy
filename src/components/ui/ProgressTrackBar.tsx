@@ -1,8 +1,10 @@
 import type React from 'react';
+import { NavLink } from 'react-router-dom';
 
 interface ProgressTrackBarProps {
   srcImage: string;
   trackName: string;
+  toAlbum?: string | undefined;
   currentTrackMinutes: number;
   trackDurationMinutes: number;
   onSeek?: (percentage: number) => void;
@@ -11,6 +13,7 @@ interface ProgressTrackBarProps {
 export const ProgressTrackBar: React.FC<ProgressTrackBarProps> = ({
   srcImage,
   trackName = 'Canción desconocida',
+  toAlbum="",
   currentTrackMinutes = 0,
   trackDurationMinutes = 0,
   onSeek,
@@ -38,19 +41,23 @@ export const ProgressTrackBar: React.FC<ProgressTrackBarProps> = ({
 
   return (
     <div className="flex w-full h-full overflow-hidden rounded-2xl  bg-neutral-900 shadow-md">
-     
+
       <div className="w-[120px] flex-shrink-0 bg-neutral-800">
-        {srcImage ? (
-          <img
-            src={srcImage}
-            alt={trackName}
-            className="w-full h-full object-cover"
-          />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center bg-neutral-800 text-neutral-600 text-xs">
-            Sin portada
-          </div>
-        )}
+        <NavLink to={toAlbum} className="block w-full h-full">
+          {srcImage ? (
+            <img
+              src={srcImage}
+              alt={trackName}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center bg-neutral-800 text-neutral-600 text-xs">
+              Sin portada
+            </div>
+          )}
+
+        </NavLink>
+
       </div>
 
       {/*  Div dinámico (resto del ancho) con título y progress bar */}
