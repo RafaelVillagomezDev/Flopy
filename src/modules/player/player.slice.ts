@@ -27,7 +27,7 @@ export interface AlbumItem {
   collectionName: string;
   artistId: number;
   artistName: string;
-  artworkUrl: string; 
+  artworkUrl: string;
   collectionViewUrl: string;
   releaseDate: string;
   trackCount?: number;
@@ -41,6 +41,9 @@ export interface PlayerState {
   status: 'idle' | 'loading' | 'succeeded' | 'failed';
   loading: boolean;
   error: string | null;
+  // Catalogo de pistas de un álbum específico
+  albumTracks: TrackItem[] | null;
+
 
   // Estado del Reproductor en tiempo real
   currentTrack: TrackItem | null;
@@ -56,7 +59,7 @@ const initialState: PlayerState = {
   status: 'idle',
   loading: false,
   error: null,
-
+  albumTracks: null,
   currentTrack: null,
   isPlaying: false,
   isMuted: false,
@@ -175,6 +178,66 @@ export const fetchRandomAlbums = createAsyncThunk<
   }
 );
 
+
+// En player.slice.ts
+
+export const fetchAlbumTracks = createAsyncThunk<
+  TrackItem[],
+  number,
+  { rejectValue: string }
+>(
+  'player/fetchAlbumTracks',
+  async (collectionId: number, { signal, rejectWithValue }) => {
+    const { url, options } = artistService.getAlbumTracks(collectionId, { signal });
+
+    try {
+      const response = await fetch(url, options);
+
+      if (!response.ok) {
+        return rejectWithValue(`Error ${response.status}: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      const results = (data.results || []) as any[];
+
+      // results[0] suele ser la info del álbum. Filtramos solo los tracks que tengan previewUrl
+      const tracks: TrackItem[] = results
+        .filter((item) => item.wrapperType === 'track' && Boolean(item.previewUrl))
+        .map((item) => {
+          const rawArtwork = item.artworkUrl100 || '';
+          const artwork200 = rawArtwork
+            ? rawArtwork.replace(/\d+x\d+bb/g, '200x200bb').replace(/\d+x\d+/g, '200x200')
+            : '';
+
+          return {
+            wrapperType: 'track' as const,
+            artistId: item.artistId || 0,
+            artistName: item.artistName || 'Artista desconocido',
+            trackId: item.trackId,
+            trackName: item.trackName || 'Pista sin título',
+            trackViewUrl: item.trackViewUrl || '',
+            releaseDate: item.releaseDate || '',
+            artworkUrl100: artwork200,
+            previewUrl: item.previewUrl,
+            collectionId: item.collectionId,
+            collectionName: item.collectionName || 'Álbum',
+            collectionViewUrl: item.collectionViewUrl || '',
+            albumArtwork: artwork200,
+          };
+        });
+
+      return tracks;
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        if (error.name === 'AbortError') throw error;
+        return rejectWithValue(error.message);
+      }
+      return rejectWithValue('Error al cargar las canciones del álbum');
+    }
+  }
+);
+
+
 // SLICE CON ACCIONES MULTIMEDIA
 
 
@@ -182,14 +245,14 @@ export const playerSlice = createSlice({
   name: 'player',
   initialState,
   reducers: {
-    // 1. Asignar la pista elegida e iniciar reproducción
+  
     setCurrentTrack: (state, action: PayloadAction<TrackItem>) => {
       state.currentTrack = action.payload;
       state.isPlaying = true;
       state.currentTime = 0;
       state.seekTime = null;
     },
-    // 2. Play / Pausa alternativo
+
     togglePlay: (state) => {
       if (state.currentTrack) {
         state.isPlaying = !state.isPlaying;
@@ -198,16 +261,16 @@ export const playerSlice = createSlice({
     setIsPlaying: (state, action: PayloadAction<boolean>) => {
       state.isPlaying = action.payload;
     },
-    // 3. Mute / Unmute
+ 
     toggleMute: (state) => {
       state.isMuted = !state.isMuted;
     },
-    // 4. Actualización continua emitida por el <video>
+   
     setTimeUpdate: (state, action: PayloadAction<{ currentTime: number; duration: number }>) => {
       state.currentTime = action.payload.currentTime;
       state.duration = action.payload.duration;
     },
-    // 5. Señal para que el <video> salte al segundo elegido
+    
     requestSeek: (state, action: PayloadAction<number>) => {
       state.seekTime = action.payload;
     },
@@ -251,6 +314,22 @@ export const playerSlice = createSlice({
         state.loading = false;
         state.status = 'failed';
         state.error = action.payload || action.error.message || 'Error al buscar álbumes aleatorios';
+      });
+    // fetchAlbumTracks
+    // Dentro de extraReducers:
+    builder
+      .addCase(fetchAlbumTracks.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchAlbumTracks.fulfilled, (state, action) => {
+        state.loading = false;
+        state.albumTracks = action.payload;
+      })
+      .addCase(fetchAlbumTracks.rejected, (state, action) => {
+        if (action.meta.aborted) return;
+        state.loading = false;
+        state.error = action.payload || 'Error al cargar pistas';
       });
   },
 });

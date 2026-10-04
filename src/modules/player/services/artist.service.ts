@@ -19,6 +19,15 @@ export const artistService = {
         signal: options?.signal,
       },
     };
+  },
+  getAlbumTracks: (collectionId: number, options?: { signal?: AbortSignal }) => {
+    return {
+      url: `https://itunes.apple.com/lookup?id=${collectionId}&entity=song`,
+      options: {
+        method: 'GET',
+        signal: options?.signal,
+      },
+    };
   }
   
 };

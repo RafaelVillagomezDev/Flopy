@@ -1,6 +1,7 @@
 import type React from 'react';
 import { NavLink } from 'react-router-dom';
 import { Disc3 } from 'lucide-react';
+import { IconBase } from './IconBase';
 
 interface AlbumCardProps {
   to: string;
@@ -17,7 +18,7 @@ export const AlbumCard: React.FC<AlbumCardProps> = ({
   trackName,
   albumName,
 }) => {
-  // Mostramos el nombre de la pista si existe, o el álbum como título principal
+
   const primaryTitle = trackName || albumName || 'Sin título';
 
   return (
@@ -37,7 +38,7 @@ export const AlbumCard: React.FC<AlbumCardProps> = ({
           aria-hidden="true"
           className="absolute right-2.5 bottom-2.5 flex h-10 w-10 items-center justify-center rounded-full bg-red-600 text-white shadow-lg shadow-red-600/30 transition-all duration-300 ease-out opacity-100 translate-y-0 [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:translate-y-2 [@media(hover:hover)]:group-hover:opacity-100 [@media(hover:hover)]:group-hover:translate-y-0 [@media(hover:hover)]:group-hover:scale-105"
         >
-          <Disc3 className="w-5 h-5 text-white animate-[spin_6s_linear_infinite]" />
+          <IconBase icon={Disc3} className="w-5 h-5 text-white animate-[spin_6s_linear_infinite]" />
         </div>
       </div>
       <div className="mt-3 flex flex-col gap-0.5 min-w-0">
