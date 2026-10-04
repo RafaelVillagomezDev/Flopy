@@ -22,6 +22,22 @@
   /* 4. Espaciados y Bordes */
   --radius-player: 1rem;            /* Curvatura específica para tu reproductor */
   --spacing-sidebar: 16rem;         /* Ancho fijo para tu menú lateral (256px) */
+
+
+  /* Fondos Cards */
+    --color-card-bg-active: rgb(38 38 38 / 0.9);     /* neutral-800/90 */
+    --color-card-bg-hover: rgb(23 23 23);           /* neutral-900 */
+
+    /* Bordes */
+    --color-card-border-active: rgb(16 185 129 / 0.4); /* emerald-500/40 */
+
+    /* Textos */
+    --color-card-text-primary: rgb(229 229 229);    /* neutral-200 */
+    --color-card-text-muted: rgb(163 163 163);      /* neutral-400 */
+    --color-card-text-active: rgb(52 211 153);      /* emerald-400 */
+    --color-card-bg-hover: rgb(38 38 38 / 0.6);         /* Fondo más claro/translúcido */
+  --color-card-border-hover: rgb(52 211 153 / 0.45);
+
 }
 
 /* Opcional: Aplicar el fondo y color de texto base a toda la web por defecto */

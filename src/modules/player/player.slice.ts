@@ -1,37 +1,11 @@
 import { createSlice, createAsyncThunk, type PayloadAction } from '@reduxjs/toolkit';
 import { artistService } from './services/artist.service';
+import type { TrackItem } from '@/types/track.type';
+import type { AlbumItem } from '@/types/album.type';
 
 // ==========================================
 // INTERFACES Y TIPOS
 // ==========================================
-
-export interface TrackItem {
-  wrapperType: 'track';
-  artistId: number;
-  artistName: string;
-  trackId: number;
-  trackName: string;
-  trackViewUrl: string;
-  previewUrl: string;
-  artworkUrl100: string;
-  releaseDate: string;
-  collectionId?: number;
-  collectionName?: string;
-  collectionViewUrl?: string;
-  albumArtwork?: string;
-}
-
-export interface AlbumItem {
-  wrapperType: 'collection';
-  collectionId: number;
-  collectionName: string;
-  artistId: number;
-  artistName: string;
-  artworkUrl: string;
-  collectionViewUrl: string;
-  releaseDate: string;
-  trackCount?: number;
-}
 
 export type ItunesItem = TrackItem | AlbumItem;
 
