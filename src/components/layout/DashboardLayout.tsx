@@ -13,7 +13,7 @@ import {
 import { CoverCard } from '../ui/CoverCard';
 
 import {
-    fetchSingerInfo,clearSinger
+    fetchSingerInfo, clearSinger
 } from '@modules/singer/singer.slice';
 import { SingerCard } from '../ui/SingerCard';
 
@@ -133,7 +133,12 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
             {/* PANEL DERECHO: Top Streams */}
             <aside className="hidden lg:block lg:col-start-3 row-start-1 overflow-y-auto bg-black p-4 border-l border-gray-800">
                 <CoverCard textSong={currentTrack?.collectionName} imageCover={currentTrack?.artworkUrl300} textSinger={currentTrack?.artistName}>
-
+                    <p
+                        className="font-bold text-sm sm:text-base truncate mb-3"
+                        title={currentTrack?.trackName}
+                    >
+                        {currentTrack?.trackName}
+                    </p>
                 </CoverCard>
                 {singer && singer.strArtist && (
                     <SingerCard
@@ -142,12 +147,7 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                         strArtistThumb={singer.strArtistThumb}
                     >
                         <div className="flex flex-col min-w-0 w-full">
-                            <p
-                                className="font-bold text-sm sm:text-base truncate mb-3"
-                                title={currentTrack?.trackName}
-                            >
-                                {currentTrack?.trackName}
-                            </p>
+
                             <p className="text-xs text-neutral-400 line-clamp-12">
                                 {singer.strBiographyES || singer.strBiographyEN}
                             </p>
