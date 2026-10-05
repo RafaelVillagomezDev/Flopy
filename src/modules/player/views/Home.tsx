@@ -110,7 +110,8 @@ export const Home: React.FC = () => {
       )}
 
       {!loading && itemsToRender && itemsToRender.length > 0 && (
-        <div className="mt-6">
+        <div className="mt-6 ">
+          <h2 className="font-bold  text-lg sm:text-xl ml-6">Albums recomendados</h2>
           <CardLayout>
             {itemsToRender
               .filter((item) => (isSearchActive ? true : item.wrapperType === 'collection'))

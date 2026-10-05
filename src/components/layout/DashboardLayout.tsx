@@ -10,6 +10,12 @@ import {
     setIsPlaying,
     resetSeek,
 } from '@/modules/player/player.slice';
+import { CoverCard } from '../ui/CoverCard';
+
+import {
+    fetchSingerInfo,clearSinger
+} from '@modules/singer/singer.slice';
+import { SingerCard } from '../ui/SingerCard';
 
 interface DashboardLayoutProps {
     children: ReactNode;
@@ -23,6 +29,8 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
         (state: RootState) => state.player
     );
 
+    const { singer } = useSelector((state: RootState) => state.singer)
+
     // Control de Play / Pause
     useEffect(() => {
         const video = videoRef.current;
@@ -32,6 +40,7 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
             video.play().catch((err) => {
                 console.warn('Reproducción bloqueada o interrumpida:', err);
                 dispatch(setIsPlaying(false));
+
             });
         } else {
             video.pause();
@@ -59,6 +68,20 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
             videoRef.current.volume = volume;
         }
     }, [volume]);
+    // 5 . biografia del artista 
+    useEffect(() => {
+        const artistName = currentTrack?.artistName;
+
+        if (!artistName) {
+            dispatch(clearSinger()); // Limpia si no hay canción activa
+            return;
+        }
+
+        const promise = dispatch(fetchSingerInfo(artistName));
+        return () => {
+            promise.abort();
+        };
+    }, [currentTrack?.artistName, dispatch]);
 
     return (
         <div
@@ -109,7 +132,28 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
 
             {/* PANEL DERECHO: Top Streams */}
             <aside className="hidden lg:block lg:col-start-3 row-start-1 overflow-y-auto bg-black p-4 border-l border-gray-800">
-                <h2 className="font-bold mb-4">Top Streams</h2>
+                <CoverCard textSong={currentTrack?.collectionName} imageCover={currentTrack?.artworkUrl300} textSinger={currentTrack?.artistName}>
+
+                </CoverCard>
+                {singer && singer.strArtist && (
+                    <SingerCard
+                        strArtist={singer.strArtist}
+                        strArtistAlternate={singer.strArtistAlternate}
+                        strArtistThumb={singer.strArtistThumb}
+                    >
+                        <div className="flex flex-col min-w-0 w-full">
+                            <p
+                                className="font-bold text-sm sm:text-base truncate mb-3"
+                                title={currentTrack?.trackName}
+                            >
+                                {currentTrack?.trackName}
+                            </p>
+                            <p className="text-xs text-neutral-400 line-clamp-12">
+                                {singer.strBiographyES || singer.strBiographyEN}
+                            </p>
+                        </div>
+                    </SingerCard>
+                )}
             </aside>
 
             {/* REPRODUCTOR INFERIOR */}

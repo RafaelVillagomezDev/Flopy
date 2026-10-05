@@ -16,6 +16,7 @@ export const CardLayout: React.FC<CardLayoutProps> = ({ children, className }) =
         className
       )}
     >
+      
       {children}
     </div>
   );

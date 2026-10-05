@@ -84,7 +84,9 @@ export const fetchArtists = createAsyncThunk<
         const artwork200 = rawArtwork
           ? rawArtwork.replace(/\d+x\d+bb/g, '200x200bb').replace(/\d+x\d+/g, '200x200')
           : '';
-
+         const artwork300 = rawArtwork
+          ? rawArtwork.replace(/\d+x\d+bb/g, '300x300bb').replace(/\d+x\d+/g, '200x200')
+          : '';
         return {
           wrapperType: 'track' as const,
           artistId: item.artistId || 0,
@@ -94,6 +96,7 @@ export const fetchArtists = createAsyncThunk<
           trackViewUrl: item.trackViewUrl || '',
           releaseDate: item.releaseDate || '',
           artworkUrl100: artwork200,
+          artworkUrl300: artwork300,
           previewUrl: item.previewUrl || '',
           collectionId: item.collectionId,
           collectionName: item.collectionName || 'Álbum desconocido',
@@ -138,7 +141,9 @@ export const fetchRandomAlbums = createAsyncThunk<
           const artwork200 = rawArtwork
             .replace(/\d+x\d+bb/g, '200x200bb')
             .replace(/\d+x\d+/g, '200x200');
-
+           const artwork300 = rawArtwork
+          ? rawArtwork.replace(/\d+x\d+bb/g, '300x300bb').replace(/\d+x\d+/g, '200x200')
+          : '';
           const collectionHref = entry.link?.attributes?.href || '';
           const collectionId = Number(entry.id?.attributes?.['im:id'] || collectionHref.split('/id')?.[1]?.split('?')?.[0] || 0);
 
@@ -152,6 +157,7 @@ export const fetchRandomAlbums = createAsyncThunk<
             artistId,
             artistName: entry['im:artist']?.label || 'Artista desconocido',
             artworkUrl: artwork200,
+            artworkUrl300:artwork300,
             collectionViewUrl: collectionHref,
             releaseDate: entry['im:releaseDate']?.label || '',
             trackCount: Number(entry['im:itemCount']?.label || 0),
@@ -195,7 +201,9 @@ export const fetchAlbumTracks = createAsyncThunk<
           const artwork200 = rawArtwork
             ? rawArtwork.replace(/\d+x\d+bb/g, '200x200bb').replace(/\d+x\d+/g, '200x200')
             : '';
-
+           const artwork300 = rawArtwork
+            ? rawArtwork.replace(/\d+x\d+bb/g, '300x300bb').replace(/\d+x\d+/g, '300x300')
+            : '';
           return {
             wrapperType: 'track' as const,
             artistId: item.artistId || 0,
@@ -205,6 +213,7 @@ export const fetchAlbumTracks = createAsyncThunk<
             trackViewUrl: item.trackViewUrl || '',
             releaseDate: item.releaseDate || '',
             artworkUrl100: artwork200,
+            artworkUrl300:artwork300,
             previewUrl: item.previewUrl,
             collectionId: item.collectionId,
             collectionName: item.collectionName || 'Álbum',

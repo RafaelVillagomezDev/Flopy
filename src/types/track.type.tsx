@@ -7,6 +7,7 @@ export interface TrackItem {
   trackViewUrl: string;
   previewUrl: string;
   artworkUrl100: string;
+  artworkUrl300:string;
   releaseDate: string;
   collectionId?: number;
   collectionName?: string;
