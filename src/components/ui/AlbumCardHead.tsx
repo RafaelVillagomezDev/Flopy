@@ -16,16 +16,16 @@ export const AlbumCardHead: React.FC<AlbumCardHeadProps> = ({ album }) => {
             <img
                 src={highResArtwork}
                 alt={firstTrack.collectionName || 'Portada del álbum'}
-                className="w-40 h-40 rounded-xl object-cover shadow-2xl bg-neutral-800"
+                className="w-40 h-full sm:h-40 rounded-xl object-cover shadow-2xl bg-neutral-800"
             />
             <div>
                 <span className="text-xs uppercase tracking-wider text-neutral-400 font-bold">
                     Álbum
                 </span>
-                <h1 className="text-3xl font-bold mt-1 text-white">
+                <h1 className="text-lg sm:text-3xl font-bold mt-1 text-white">
                     {firstTrack.collectionName || 'Álbum sin título'}
                 </h1>
-                <p className="text-neutral-400 mt-2">
+                <p className="text-neutral-400 mt-2 text-xs">
                     {firstTrack.artistName} • {album.length} canciones
                 </p>
             </div>

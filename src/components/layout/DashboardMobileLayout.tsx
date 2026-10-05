@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import { BottomNav } from "../ui/BottomNav";
 export const DashboardMobileLayout = ({ children }: { children: ReactNode }) => {
   return (
-    <div className="flex flex-col h-screen bg-[#121212] text-white">
+    <div className="flex flex-col h-full sm:h-screen  bg-[#121212] text-white">
       
       {/* 1. CONTENIDO PRINCIPAL (Ocupa todo el espacio de arriba) */}
       <main className="flex-1  pb-24">
