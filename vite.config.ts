@@ -3,9 +3,19 @@ import { defineConfig } from 'vite'
 import tailwindcss from '@tailwindcss/vite';
 import path from 'path'
 
-// https://vite.dev/config/
+
 export default defineConfig({
-  plugins: [react(), tailwindcss(),],
+  plugins: [react(), tailwindcss()],
+  
+
+  server: {
+    host: true, 
+    port: 5173,
+    watch: {
+      usePolling: true, 
+    }
+  },
+
   resolve: {
     alias: {
       '@': path.resolve(import.meta.dirname, './src'),
@@ -17,9 +27,6 @@ export default defineConfig({
       '@store': path.resolve(import.meta.dirname, './src/store'),
       '@types': path.resolve(import.meta.dirname, './src/types'),
       '@utils': path.resolve(import.meta.dirname, './src/utils'),
-
     },
   },
-  
-
 })

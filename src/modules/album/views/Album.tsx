@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import {useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import type { RootState } from '@/store/store';
 import { Loader2 } from 'lucide-react';
 import {
@@ -25,7 +25,7 @@ export const Album: React.FC = () => {
         (state: RootState) => state.player
     );
 
-    
+
 
     useEffect(() => {
         if (collectionId) {
@@ -64,7 +64,10 @@ export const Album: React.FC = () => {
         <div className="p-6 max-w-4xl mx-auto">
             {/* Cabecera del Álbum (usando los datos de la primera pista o del store) */}
             {albumTracks && albumTracks.length > 0 && (
-                <AlbumCardHead album={albumTracks} />
+                <AlbumCardHead
+                    album={albumTracks}
+                    navTo={`/singer/${encodeURIComponent(albumTracks[0].artistName)}`}
+                />
             )}
 
             {/* Lista de canciones */}
