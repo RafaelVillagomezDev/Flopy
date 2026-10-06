@@ -29,7 +29,7 @@ export const AlbumCard: React.FC<AlbumCardProps> = ({
       to={to}
       className="group flex flex-col p-3 rounded-2xl bg-neutral-900/60 transition-all duration-300 w-full max-w-[200px] select-none active:scale-[0.98] [@media(hover:hover)]:hover:bg-neutral-800/80"
     >
-      {/* Portada e indicador de reproducción */}
+   
       <div className="relative aspect-square w-full overflow-hidden rounded-xl bg-neutral-800 shadow-md transition-shadow [@media(hover:hover)]:group-hover:shadow-xl [@media(hover:hover)]:group-hover:shadow-black/50">
         <img
           src={src}
@@ -46,7 +46,6 @@ export const AlbumCard: React.FC<AlbumCardProps> = ({
         </div>
       </div>
 
-      {/* Datos o Children alternativo */}
       <div className="mt-3 flex flex-col gap-0.5 min-w-0">
         {hasMeta ? (
           <>

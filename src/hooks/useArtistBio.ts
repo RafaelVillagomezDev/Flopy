@@ -7,7 +7,7 @@ import { useAppDispatch, useAppSelector } from './hooks';
 export const useArtistBio = (artistName?: string) => {
   const dispatch = useAppDispatch();
   const { singer } = useAppSelector((state: RootState) => state.singer);
-
+  
   useEffect(() => {
     if (!artistName) {
       dispatch(clearSinger());

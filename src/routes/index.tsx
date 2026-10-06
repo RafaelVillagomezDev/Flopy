@@ -4,6 +4,7 @@ import { libraryRoutes } from '@modules/library/routes/routes';
 import { MainLayout } from '@components/layout/MainLayout';
 import { AppRRoutes } from '@/modules/player/routes/routes';
 import { AlbumRoutes } from '@/modules/album/routes/routes';
+import { SingerRoutes } from '@/modules/singer/routes/routes';
 
 export const router = createBrowserRouter([
   {
@@ -13,6 +14,7 @@ export const router = createBrowserRouter([
       AppRRoutes, 
       libraryRoutes,
       AlbumRoutes, 
+      SingerRoutes
     ]
   }
 ]);

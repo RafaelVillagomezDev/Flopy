@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
-import type { AppDispatch, RootState } from '@/store/store';
+import {useSelector } from 'react-redux';
+import type { RootState } from '@/store/store';
 import { Loader2 } from 'lucide-react';
 import {
     fetchAlbumTracks,
@@ -13,12 +13,13 @@ import type { TrackItem } from '@/types/track.type';
 import { ListTracks } from '@/components/ui/ListTracks';
 import { AlbumCardHead } from '@/components/ui/AlbumCardHead';
 import { Loader } from '@/components/ui/Loader';
+import { useAppDispatch } from '@/hooks/hooks';
 
 export const Album: React.FC = () => {
 
     const { collectionId } = useParams<{ collectionId: string }>();
 
-    const dispatch = useDispatch<AppDispatch>();
+    const dispatch = useAppDispatch()
 
     const { albumTracks, currentTrack, isPlaying, loading, error, duration } = useSelector(
         (state: RootState) => state.player

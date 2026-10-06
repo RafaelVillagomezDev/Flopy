@@ -126,7 +126,7 @@ export const Home: React.FC = () => {
               {topSingers.map((singer) => (
                 <AlbumCard
                   key={`singer-${singer.id}`}
-                  to={`/artist/${singer.id}`}
+                  to={`/singer/${encodeURIComponent(singer.name)}`}
                   src={singer.picture_big || singer.picture_medium || singer.picture}
                 >
                   <span

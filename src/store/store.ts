@@ -5,7 +5,8 @@ import singerReducer from '@/modules/singer/singer.slice';
 export const store = configureStore({
   reducer: {
     player: playerReducer,
-    singer:singerReducer
+    singer:singerReducer,
+    
   }
 })
 
