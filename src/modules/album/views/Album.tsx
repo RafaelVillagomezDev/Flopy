@@ -24,7 +24,7 @@ export const Album: React.FC = () => {
         (state: RootState) => state.player
     );
 
-
+    
 
     useEffect(() => {
         if (collectionId) {
