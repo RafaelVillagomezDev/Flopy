@@ -28,6 +28,19 @@ export const artistService = {
         signal: options?.signal,
       },
     };
-  }
-  
+  },
+  getAlbumsByArtist: (
+    artistId: number,
+    options?: { limit?: number; signal?: AbortSignal }
+  ) => {
+    const limit = options?.limit ?? 50;
+    return {
+      url: `https://itunes.apple.com/lookup?id=${artistId}&entity=album&limit=${limit}`,
+      options: {
+        method: 'GET' as const,
+        signal: options?.signal,
+      },
+    };
+  },
+
 };

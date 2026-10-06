@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { singerService } from './services/singer.service';
+import { fetchDeezerJSONP } from './utils/fetchJSONP';
 
 // INTERFACES Y TIPOS
 
@@ -22,19 +23,84 @@ export interface SingerItem {
     strArtistBanner?: string | null;
 }
 
+
+export interface TopSingersItem {
+    id: number;
+    name: string;
+    link: string;
+    picture: string;
+    picture_small: string;
+    picture_medium: string;
+    picture_big: string;
+    picture_xl: string;
+    radio: boolean;
+    tracklist: string;
+    position: number;
+    type: 'artist'; // o string si prefieres no restringirlo
+}
+
 export interface SingerState {
     singer: SingerItem | null; // Cambiado a un solo objeto
     status: 'idle' | 'loading' | 'succeeded' | 'failed';
     loading: boolean;
     error: string | null;
+    topSingers: TopSingersItem[] | null;
+    topSingersStatus: 'idle' | 'loading' | 'succeeded' | 'failed';
+    topSingersError: string | null;
 }
+
+
 
 const initialState: SingerState = {
     singer: null,
     status: 'idle',
     loading: false,
     error: null,
+    topSingers: null,
+    topSingersStatus: 'idle',
+    topSingersError: null,
+
 };
+
+export interface FetchTopSingersArgs {
+    limit?: number;
+    // Opcional: si quieres pasar el ID del chart por país (por defecto 0 es Global/Localizado)
+    chartId?: number | string;
+}
+
+interface DeezerArtistsChartResponse {
+    data: TopSingersItem[];
+    total: number;
+}
+
+export const fetchTopArtistsByCountry = createAsyncThunk<
+    TopSingersItem[],
+    FetchTopSingersArgs | void,
+    { rejectValue: string }
+>(
+    'singer/fetchTopArtistsByCountry',
+    async (args, { rejectWithValue }) => {
+        const limit = args?.limit ?? 10;
+        const chartId = args?.chartId ?? 0;
+
+        try {
+
+            const response = await fetchDeezerJSONP<DeezerArtistsChartResponse>({
+                endpoint: `chart/${chartId}/artists`,
+                params: { limit },
+            });
+
+            if (!response || !response.data) {
+                return rejectWithValue('No se encontraron artistas en tendencia');
+            }
+
+            return response.data;
+        } catch (err: any) {
+            return rejectWithValue(err?.message || 'Error al obtener los artistas populares');
+        }
+    }
+);
+
 
 export const fetchSingerInfo = createAsyncThunk<
     SingerItem,
@@ -102,6 +168,23 @@ export const singerSlice = createSlice({
                 state.status = 'failed';
                 state.singer = null;
                 state.error = action.payload || action.error.message || 'Error al buscar artista';
+            })
+            .addCase(fetchTopArtistsByCountry.pending, (state) => {
+                state.topSingersStatus = 'loading';
+                state.topSingersError = null;
+            })
+            .addCase(
+                fetchTopArtistsByCountry.fulfilled,
+                (state, action) => {
+                    state.topSingersStatus = 'succeeded';
+                    state.topSingers = action.payload; 
+                }
+            )
+            .addCase(fetchTopArtistsByCountry.rejected, (state, action) => {
+                if (action.meta.aborted) return;
+
+                state.topSingersStatus = 'failed';
+                state.topSingersError = action.payload || action.error.message || 'Error al cargar artistas populares';
             });
     }
 });
