@@ -23,7 +23,6 @@ export interface SingerItem {
     strArtistBanner?: string | null;
 }
 
-
 export interface TopSingersItem {
     id: number;
     name: string;
@@ -36,35 +35,58 @@ export interface TopSingersItem {
     radio: boolean;
     tracklist: string;
     position: number;
-    type: 'artist'; // o string si prefieres no restringirlo
+    type: 'artist';
+}
+
+
+export interface ArtistAlbumItem {
+    wrapperType: string;
+    collectionType: string;
+    artistId: number;
+    collectionId: number;
+    artistName: string;
+    collectionName: string;
+    artworkUrl100: string;
+    artworkUrl200: string,
+    artworkUrl300: string,
+    releaseDate: string;
+    trackCount: number;
+    primaryGenreName: string;
 }
 
 export interface SingerState {
-    singer: SingerItem | null; // Cambiado a un solo objeto
+    singer: SingerItem | null;
     status: 'idle' | 'loading' | 'succeeded' | 'failed';
     loading: boolean;
     error: string | null;
+
     topSingers: TopSingersItem[] | null;
     topSingersStatus: 'idle' | 'loading' | 'succeeded' | 'failed';
     topSingersError: string | null;
+
+    // Nuevo estado para la discografía
+    artistAlbums: ArtistAlbumItem[] | null;
+    albumsStatus: 'idle' | 'loading' | 'succeeded' | 'failed';
+    albumsError: string | null;
 }
-
-
 
 const initialState: SingerState = {
     singer: null,
     status: 'idle',
     loading: false,
     error: null,
+
     topSingers: null,
     topSingersStatus: 'idle',
     topSingersError: null,
 
+    artistAlbums: null,
+    albumsStatus: 'idle',
+    albumsError: null,
 };
 
 export interface FetchTopSingersArgs {
     limit?: number;
-    // Opcional: si quieres pasar el ID del chart por país (por defecto 0 es Global/Localizado)
     chartId?: number | string;
 }
 
@@ -72,6 +94,8 @@ interface DeezerArtistsChartResponse {
     data: TopSingersItem[];
     total: number;
 }
+
+// THUNKS
 
 export const fetchTopArtistsByCountry = createAsyncThunk<
     TopSingersItem[],
@@ -84,7 +108,6 @@ export const fetchTopArtistsByCountry = createAsyncThunk<
         const chartId = args?.chartId ?? 0;
 
         try {
-
             const response = await fetchDeezerJSONP<DeezerArtistsChartResponse>({
                 endpoint: `chart/${chartId}/artists`,
                 params: { limit },
@@ -100,7 +123,6 @@ export const fetchTopArtistsByCountry = createAsyncThunk<
         }
     }
 );
-
 
 export const fetchSingerInfo = createAsyncThunk<
     SingerItem,
@@ -118,13 +140,11 @@ export const fetchSingerInfo = createAsyncThunk<
             }
 
             const data = await response.json();
-
             const results = data.artists || data.results;
 
             if (!results || results.length === 0) {
                 return rejectWithValue('No se encontró información del artista');
             }
-
 
             return results[0] as SingerItem;
         } catch (error: unknown) {
@@ -133,6 +153,47 @@ export const fetchSingerInfo = createAsyncThunk<
                 return rejectWithValue(error.message);
             }
             return rejectWithValue('Error inesperado al buscar información del artista');
+        }
+    }
+);
+
+
+export const fetchArtistAlbums = createAsyncThunk<
+    ArtistAlbumItem[],
+    string,
+    { rejectValue: string }
+>(
+    'singer/fetchArtistAlbums',
+    async (artistName: string, { rejectWithValue, signal }) => {
+        const encodeArtistName = encodeURIComponent(artistName)
+        const { url, options } = singerService.getAlbumSinger(encodeArtistName, { signal });
+        try {
+            const response = await fetch(url, options);
+
+            if (!response.ok) throw new Error('Error al cargar los álbumes');
+
+            const data = await response.json();
+
+            // Transformamos las URLs de las imágenes a mayor resolución
+            const albumsFormatImages = data.results.map((album: any) => {
+                if (album.artworkUrl100) {
+                    const rawArtwork = album.artworkUrl100;
+
+                    album.artworkUrl200 = rawArtwork
+                        .replace(/\d+x\d+bb/g, '200x200bb')
+                        .replace(/\d+x\d+/g, '200x200');
+
+                    album.artworkUrl300 = rawArtwork
+                        .replace(/\d+x\d+bb/g, '300x300bb')
+                        .replace(/\d+x\d+/g, '300x300');
+                }
+                return album;
+            });
+
+            return albumsFormatImages;
+        } catch (error: any) {
+            if (error.name === 'AbortError') throw error;
+            return rejectWithValue(error.message || 'Error al obtener la discografía');
         }
     }
 );
@@ -146,10 +207,15 @@ export const singerSlice = createSlice({
             state.status = 'idle';
             state.error = null;
             state.loading = false;
+
+            state.artistAlbums = null;
+            state.albumsStatus = 'idle';
+            state.albumsError = null;
         },
     },
     extraReducers: (builder) => {
         builder
+            // fetchSingerInfo
             .addCase(fetchSingerInfo.pending, (state) => {
                 state.loading = true;
                 state.status = 'loading';
@@ -162,29 +228,41 @@ export const singerSlice = createSlice({
                 state.singer = action.payload;
             })
             .addCase(fetchSingerInfo.rejected, (state, action) => {
-                if (action.meta.aborted) return; // Si fue abortada intencionalmente, no tocar nada
-
+                if (action.meta.aborted) return;
                 state.loading = false;
                 state.status = 'failed';
                 state.singer = null;
                 state.error = action.payload || action.error.message || 'Error al buscar artista';
             })
+
+            // fetchTopArtistsByCountry
             .addCase(fetchTopArtistsByCountry.pending, (state) => {
                 state.topSingersStatus = 'loading';
                 state.topSingersError = null;
             })
-            .addCase(
-                fetchTopArtistsByCountry.fulfilled,
-                (state, action) => {
-                    state.topSingersStatus = 'succeeded';
-                    state.topSingers = action.payload; 
-                }
-            )
+            .addCase(fetchTopArtistsByCountry.fulfilled, (state, action) => {
+                state.topSingersStatus = 'succeeded';
+                state.topSingers = action.payload;
+            })
             .addCase(fetchTopArtistsByCountry.rejected, (state, action) => {
                 if (action.meta.aborted) return;
-
                 state.topSingersStatus = 'failed';
                 state.topSingersError = action.payload || action.error.message || 'Error al cargar artistas populares';
+            })
+
+            // fetchArtistAlbums 
+            .addCase(fetchArtistAlbums.pending, (state) => {
+                state.albumsStatus = 'loading';
+                state.albumsError = null;
+            })
+            .addCase(fetchArtistAlbums.fulfilled, (state, action) => {
+                state.albumsStatus = 'succeeded';
+                state.artistAlbums = action.payload;
+            })
+            .addCase(fetchArtistAlbums.rejected, (state, action) => {
+                if (action.meta.aborted) return;
+                state.albumsStatus = 'failed';
+                state.albumsError = action.payload || action.error.message || 'Error al cargar álbumes';
             });
     }
 });

@@ -10,5 +10,15 @@ export const singerService = {
         signal: options?.signal,
       },
     };
-  }  
+  },
+
+  getAlbumSinger: (singerName: string, options?: SearchOptions) => {
+    return {
+      url: `https://itunes.apple.com/search?term=${encodeURIComponent(singerName)}&media=music&entity=album&attribute=artistTerm&limit=50`,
+      options: {
+        method: 'GET',
+        signal: options?.signal,
+      },
+    };
+  },
 };

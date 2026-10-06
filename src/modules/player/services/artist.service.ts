@@ -4,7 +4,7 @@ import type { SearchOptions } from "@/types/searchOptions.type";
 export const artistService = {
   searchArtists: (searchTerm: string, options?: SearchOptions) => {
     return {
-      url: `https://itunes.apple.com/search?term=${searchTerm}&country=ES&entity=song&limit=10`,
+      url: `https://itunes.apple.com/search?term=${searchTerm}&media=music&entity=song&limit=20`,
       options: {
         method: 'GET',
         signal: options?.signal,

@@ -36,7 +36,7 @@ export const CoverCard: React.FC<CoverCardProps> = ({
   const hasActiveTrack = Boolean(currentTrack || isPlaying);
 
   return (
-    <div className="w-full max-w-xs">
+    <div className="w-full max-w-xs mb-4">
       <p className="text-sm font-semibold truncate sm:text-lg mb-1">{textSong}</p>
 
       
