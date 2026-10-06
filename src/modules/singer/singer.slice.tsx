@@ -165,8 +165,8 @@ export const fetchArtistAlbums = createAsyncThunk<
 >(
     'singer/fetchArtistAlbums',
     async (artistName: string, { rejectWithValue, signal }) => {
-        const encodeArtistName = encodeURIComponent(artistName)
-        const { url, options } = singerService.getAlbumSinger(encodeArtistName, { signal });
+        
+        const { url, options } = singerService.getAlbumSinger(artistName, { signal });
         try {
             const response = await fetch(url, options);
 

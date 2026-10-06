@@ -4,7 +4,7 @@ import type { SearchOptions } from "@/types/searchOptions.type";
 export const artistService = {
   searchArtists: (searchTerm: string, options?: SearchOptions) => {
     return {
-      url: `https://itunes.apple.com/search?term=${searchTerm}&media=music&entity=song&limit=20`,
+      url: `https://itunes.apple.com/search?term=${searchTerm}&media=music&entity=song&limit=20&country=ES`,
       options: {
         method: 'GET',
         signal: options?.signal,
@@ -22,7 +22,7 @@ export const artistService = {
   },
   getAlbumTracks: (collectionId: number, options?: { signal?: AbortSignal }) => {
     return {
-      url: `https://itunes.apple.com/lookup?id=${collectionId}&entity=song`,
+      url: `https://itunes.apple.com/lookup?id=${collectionId}&entity=song&country=ES`,
       options: {
         method: 'GET',
         signal: options?.signal,
@@ -35,7 +35,7 @@ export const artistService = {
   ) => {
     const limit = options?.limit ?? 50;
     return {
-      url: `https://itunes.apple.com/lookup?id=${artistId}&entity=album&limit=${limit}`,
+      url: `https://itunes.apple.com/lookup?id=${artistId}&entity=album&limit=${limit}&country=ES`,
       options: {
         method: 'GET' as const,
         signal: options?.signal,

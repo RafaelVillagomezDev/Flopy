@@ -1,6 +1,6 @@
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Volume2, Volume1, VolumeX, Icon } from 'lucide-react';
+import { Volume2, Volume1, VolumeX } from 'lucide-react';
 import type { RootState, AppDispatch } from '@/store/store';
 import { setVolume, toggleMute } from '@modules/player/player.slice';
 import { IconBase } from './IconBase';

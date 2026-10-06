@@ -15,35 +15,36 @@ export const Singer: React.FC = () => {
     const dispatch = useAppDispatch();
     const { singerName } = useParams<{ singerName: string }>();
 
-    const { singer } = useArtistBio(singerName);
+    
+    const decodedSingerName = singerName ? decodeURIComponent(singerName) : '';
 
+
+    const { singer } = useArtistBio(decodedSingerName);
 
     const { topSingers, artistAlbums, albumsError, albumsStatus } = useSelector((state: RootState) => state.singer);
 
-
-    //  Buscar en el topSingers usando useMemo (solo se recalcula si cambian el nombre o la lista)
     const deezerSingerInfo = useMemo(() => {
-        if (!topSingers || !singerName) return undefined;
-        const searchName = decodeURIComponent(singerName).toLowerCase().trim();
+        if (!topSingers || !decodedSingerName) return undefined;
+        const searchName = decodedSingerName.toLowerCase().trim();
         return topSingers.find(s => s.name.toLowerCase().trim() === searchName);
-    }, [topSingers, singerName]);
+    }, [topSingers, decodedSingerName]);
 
-    // Usar la foto de TheAudioDB o, si no existe
+
     const displayImage = singer?.strArtistThumb || deezerSingerInfo?.picture_xl || deezerSingerInfo?.picture_big;
-    const displayName = singer?.strArtist || deezerSingerInfo?.name || decodeURIComponent(singerName || '');
-
+    const displayName = singer?.strArtist || deezerSingerInfo?.name || decodedSingerName;
 
     const artistAlbumPromise = useRef<{ abort: () => void } | null>(null);
 
     useEffect(() => {
-        if (singerName) {
+        if (decodedSingerName) {
             artistAlbumPromise.current?.abort?.();
-            artistAlbumPromise.current = dispatch(fetchArtistAlbums(singerName));
+            const itunesSearchTerm = decodedSingerName.replace(/\s+/g, '+');
+            artistAlbumPromise.current = dispatch(fetchArtistAlbums(itunesSearchTerm));
         }
         return () => {
             artistAlbumPromise.current?.abort?.();
         };
-    }, [singerName, dispatch]);
+    }, [decodedSingerName, dispatch]);
 
     return (
         <div className="max-w-full mx-auto">
@@ -111,7 +112,7 @@ export const Singer: React.FC = () => {
                                 >
                                     {singer.artistName}
                                 </span>
-                                <span className="text-xs text-neutral-400 block mt-0.5">
+                                <span className="text-xs text-neutral-400 block mt-0.5 truncate ">
                                     #{singer.collectionName}
                                 </span>
                             </AlbumCard>

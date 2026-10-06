@@ -14,7 +14,7 @@ export const singerService = {
 
   getAlbumSinger: (singerName: string, options?: SearchOptions) => {
     return {
-      url: `https://itunes.apple.com/search?term=${encodeURIComponent(singerName)}&media=music&entity=album&attribute=artistTerm&limit=50`,
+      url: `https://itunes.apple.com/search?term=${singerName}&media=music&entity=album&attribute=artistTerm&limit=50&country=ES`,
       options: {
         method: 'GET',
         signal: options?.signal,

@@ -16,7 +16,7 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
     const { singer } = useArtistBio(currentTrack?.artistName);
 
     return (
-        <div className="grid h-screen grid-cols-[80px_1fr] md:grid-cols-[180px_1fr] lg:grid-cols-[240px_1fr_300px] grid-rows-[1fr_90px] overflow-hidden bg-[#121212] text-white font-sans">
+        <div className=" grid h-screen grid-cols-[80px_1fr] md:grid-cols-[180px_1fr] lg:grid-cols-[240px_1fr_300px] grid-rows-[1fr_90px] overflow-hidden bg-[#121212] text-white font-sans">
 
             {/* Motor multimedia */}
             <video
@@ -39,13 +39,13 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
             </main>
 
             {/* PANEL DERECHO */}
-            <aside className="hidden lg:block lg:col-start-3 row-start-1 overflow-y-auto bg-black p-4 border-l border-gray-800">
+            <aside className="hidden lg:block lg:col-start-3 row-start-1 overflow-y-auto bg-black p-4 border-l border-gray-800 ">
                 <CoverCard
                     textSong={currentTrack?.collectionName}
                     imageCover={currentTrack?.artworkUrl300}
                     textSinger={currentTrack?.artistName}
                 >
-                    <p className="font-bold text-sm sm:text-base truncate mb-3" title={currentTrack?.trackName}>
+                    <p className="font-bold text-sm sm:text-base mb-3 " title={currentTrack?.trackName}>
                         {currentTrack?.trackName}
                     </p>
                 </CoverCard>
