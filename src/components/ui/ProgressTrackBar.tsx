@@ -1,5 +1,6 @@
 import type React from 'react';
 import { NavLink } from 'react-router-dom';
+import { cn } from '@/utils/cn';
 
 interface ProgressTrackBarProps {
   srcImage: string;
@@ -8,6 +9,7 @@ interface ProgressTrackBarProps {
   currentTrackMinutes: number;
   trackDurationMinutes: number;
   onSeek?: (percentage: number) => void;
+  className?:string
 }
 
 export const ProgressTrackBar: React.FC<ProgressTrackBarProps> = ({
@@ -17,6 +19,7 @@ export const ProgressTrackBar: React.FC<ProgressTrackBarProps> = ({
   currentTrackMinutes = 0,
   trackDurationMinutes = 0,
   onSeek,
+  className
 }) => {
   // Cálculo de porcentaje acotado entre 0 y 100
   const progressPercentage =
@@ -40,15 +43,15 @@ export const ProgressTrackBar: React.FC<ProgressTrackBarProps> = ({
   };
 
   return (
-    <div className="flex w-full h-full overflow-hidden rounded-2xl  bg-neutral-900 shadow-md">
+    <div className={cn("flex w-full h-full overflow-hidden rounded-2xl  bg-neutral-900 shadow-md",className)}>
 
-      <div className="w-[120px] flex-shrink-0 bg-neutral-800">
+      <div className="sm:w-[120px] flex-shrink-0 bg-neutral-800">
         <NavLink to={toAlbum} className="block w-full h-full">
           {srcImage ? (
             <img
               src={srcImage}
               alt={trackName}
-              className="w-full h-full object-cover"
+              className="w-full h-full scale-down sm:object-cover"
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center bg-neutral-800 text-neutral-600 text-xs">
