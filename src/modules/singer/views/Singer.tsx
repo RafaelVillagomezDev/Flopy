@@ -74,7 +74,7 @@ export const Singer: React.FC = () => {
     if (isPageLoading) {
         return (
             <div className="w-full min-h-[60vh] flex flex-col items-center justify-center">
-                <Loader icon={Disc3}>Cargando perfil y discografía de {decodedSingerName}...</Loader>
+                <Loader icon={Disc3} className='fixed inset-0 z-50 bg-[#121212]'>Cargando perfil y discografía de {decodedSingerName}...</Loader>
             </div>
         );
     }

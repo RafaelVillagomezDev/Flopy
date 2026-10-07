@@ -111,7 +111,7 @@ export const Home: React.FC = () => {
 
           {topSingersStatus === 'loading' && (
             <div className="py-8 flex justify-center">
-              <Loader icon={TrendingUp}>Cargando artistas en tendencia...</Loader>
+              <Loader icon={TrendingUp} className='fixed inset-0 z-50 bg-[#121212]'>Cargando artistas en tendencia...</Loader>
             </div>
           )}
 
@@ -149,7 +149,7 @@ export const Home: React.FC = () => {
       <section>
         {loading && (
           <div className="py-20 flex justify-center">
-            <Loader icon={isSearchActive ? Search : Disc3}>
+            <Loader icon={isSearchActive ? Search : Disc3} className='fixed inset-0 z-50 bg-[#121212]'>
               {isSearchActive
                 ? `Buscando resultados para "${searchTerm}"...`
                 : 'Cargando álbumes recomendados...'}

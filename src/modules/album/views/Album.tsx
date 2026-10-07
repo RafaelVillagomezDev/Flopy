@@ -50,7 +50,7 @@ export const Album: React.FC = () => {
 
     if (loading) {
         return (
-            <Loader icon={Loader2} >
+            <Loader icon={Loader2} className='"fixed inset-0 z-50 bg-[#121212]"' >
                 <span className='text-white'>Cargando</span>
             </Loader>
         )
