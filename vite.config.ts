@@ -6,14 +6,14 @@ import path from 'path'
 
 export default defineConfig({
   plugins: [react(), tailwindcss()],
-  
+
 
   server: {
-    host: true, 
+    host: true, // Escucha en 0.0.0.0 dentro del contenedor
     port: 5173,
-    watch: {
-      usePolling: true, 
-    }
+    hmr: {
+      clientPort: 80,
+    },
   },
 
   resolve: {
