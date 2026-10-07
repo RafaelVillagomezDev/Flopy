@@ -28,7 +28,7 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
             />
 
             {/* PANEL IZQUIERDO */}
-            <aside className="col-start-1 row-start-1 overflow-y-auto bg-black p-3 md:p-4 border-r border-gray-800 [&::-webkit-scrollbar]:hidden [scrollbar-width:none]">
+            <aside className="col-start-1 row-start-1 overflow-y-auto bg-black p-3 md:p-4 border-r border-gray-800 [&::-webkit-scrollbar]:hidden [scrollbar-width:none] cursor-ns-resize">
                 <h2 className="text-lg md:text-xl font-bold mb-6 text-center md:text-left">Flopy</h2>
                 <Sidebar />
             </aside>
@@ -39,7 +39,7 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
             </main>
 
             {/* PANEL DERECHO */}
-            <aside className="hidden lg:block lg:col-start-3 row-start-1 overflow-y-auto bg-black p-4 border-l border-gray-800 ">
+            <aside className="hidden lg:block lg:col-start-3 row-start-1 overflow-y-auto bg-black p-4 border-l border-gray-800 [&::-webkit-scrollbar]:hidden [scrollbar-width:none] cursor-ns-resize ">
                 <CoverCard
                     textSong={currentTrack?.collectionName}
                     imageCover={currentTrack?.artworkUrl300}
