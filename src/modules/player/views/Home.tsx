@@ -158,6 +158,7 @@ export const Home: React.FC = () => {
         )}
 
         {Boolean(error) && !loading && (
+          
           <div className="p-4 bg-red-950/40 border border-red-800 rounded-xl text-red-300 text-sm mt-6">
             {String(error)}
           </div>

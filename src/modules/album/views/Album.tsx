@@ -14,6 +14,7 @@ import { ListTracks } from '@/components/ui/ListTracks';
 import { AlbumCardHead } from '@/components/ui/AlbumCardHead';
 import { Loader } from '@/components/ui/Loader';
 import { useAppDispatch } from '@/hooks/hooks';
+import { NavHistory } from '@/components/layout/NavHistory';
 
 export const Album: React.FC = () => {
 
@@ -64,10 +65,14 @@ export const Album: React.FC = () => {
         <div className="p-6 max-w-4xl mx-auto">
             {/* Cabecera del Álbum (usando los datos de la primera pista o del store) */}
             {albumTracks && albumTracks.length > 0 && (
-                <AlbumCardHead
-                    album={albumTracks}
-                    navTo={`/singer/${encodeURIComponent(albumTracks[0].artistName)}`}
-                />
+                <header className="p-4 border-b flex flex-col gap-y-5">
+                    <NavHistory/>
+                    <AlbumCardHead
+                        album={albumTracks}
+                        navTo={`/singer/${encodeURIComponent(albumTracks[0].artistName)}`}
+                    />
+                </header>
+
             )}
 
             {/* Lista de canciones */}

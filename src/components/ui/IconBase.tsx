@@ -6,6 +6,7 @@ interface IconBaseProps {
     size?: number;
     color?: string;
     className?: string;
+    
 }
 
 export const IconBase:React.FC<IconBaseProps> = ({ icon: Icon, size, color, className }) => {
