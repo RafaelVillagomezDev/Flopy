@@ -1,5 +1,5 @@
 import React from 'react';
-import { CircleEllipsis, Repeat, Shuffle } from 'lucide-react';
+import { Repeat } from 'lucide-react';
 import { VolumenBar } from './VolumenBar';
 
 interface PlayerOptionsProps {
@@ -9,9 +9,7 @@ interface PlayerOptionsProps {
 }
 
 export const PlayerOptions: React.FC<PlayerOptionsProps> = ({
-  randomSong,
   repeatAlbum,
-  isShuffle
 }) => {
   return (
     <div className="flex items-center justify-between w-full h-full px-4 py-2">

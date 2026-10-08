@@ -2,12 +2,12 @@ import type { ReactNode } from "react";
 import { BottomNav } from "../ui/BottomNav";
 import { PlayerBarMobile } from "../ui/PlayerBarMobile";
 import { useAudioSync } from "@/hooks/useAudioSync";
-import { useArtistBio } from "@/hooks/useArtistBio";
+
 import { StickyBanner } from "../ui/StickyBanner";
 
 export const DashboardMobileLayout = ({ children }: { children: ReactNode }) => {
   const { mediaRef, currentTrack, mediaHandlers } = useAudioSync();
-  const { singer } = useArtistBio(currentTrack?.artistName);
+
   return (
     <div className="flex flex-col min-h-screen bg-[#121212]">
       <video
