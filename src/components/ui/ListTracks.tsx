@@ -34,7 +34,7 @@ export const ListTracks: React.FC<ListTracksProps> = ({
     };
 
     return (
-        <div className="flex flex-col gap-1">
+        <div className="flex flex-col gap-1 mt-3 ">
             {tracks?.map((track, index) => {
                 const isCurrent = currentTrack?.trackId === track.trackId;
                 const isThisPlaying = isCurrent && isPlaying;
@@ -51,7 +51,7 @@ export const ListTracks: React.FC<ListTracksProps> = ({
                                 onTrackSelect(track);
                             }
                         }}
-                        className={`flex items-center justify-between p-3 rounded-xl border transition-all duration-200 cursor-pointer select-none ${
+                        className={`flex items-center justify-between p-3 rounded-xl border transition-all duration-200  cursor-pointer select-none ${
                             isCurrent
                                 ? 'bg-card-bg-active border-card-border-active text-card-text-active'
                                 : 'border-transparent hover:border-card-border-hover hover:bg-card-bg-hover text-card-text-primary'

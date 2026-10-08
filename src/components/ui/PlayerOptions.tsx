@@ -25,7 +25,7 @@ export const PlayerOptions: React.FC<PlayerOptionsProps> = ({
           <Repeat className="w-4 h-4" />
         </button>
 
-        <button
+        {/* <button
           type="button"
           onClick={randomSong}
           aria-label="Reproducción aleatoria"
@@ -35,7 +35,7 @@ export const PlayerOptions: React.FC<PlayerOptionsProps> = ({
             }`}
         >
           <Shuffle className="w-4 h-4" />
-        </button>
+        </button> */}
       </div>
 
       <div className="flex items-center gap-4">
@@ -43,13 +43,13 @@ export const PlayerOptions: React.FC<PlayerOptionsProps> = ({
           <VolumenBar />
         </div>
 
-        <button
+        {/* <button
           type="button"
           aria-label="Más opciones"
           className="bg-neutral-800 text-white hover:bg-neutral-700 transition-colors rounded-full p-2"
         >
           <CircleEllipsis className="w-4 h-4" />
-        </button>
+        </button> */}
       </div>
     </div>
   );

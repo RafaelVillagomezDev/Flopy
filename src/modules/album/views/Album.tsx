@@ -65,7 +65,7 @@ export const Album: React.FC = () => {
         <div className="p-6 max-w-4xl mx-auto">
             {/* Cabecera del Álbum (usando los datos de la primera pista o del store) */}
             {albumTracks && albumTracks.length > 0 && (
-                <header className="p-4 border-b flex flex-col gap-y-5">
+                <header className="p-4 border-b flex flex-col gap-y-5 ">
                     <NavHistory/>
                     <AlbumCardHead
                         album={albumTracks}
