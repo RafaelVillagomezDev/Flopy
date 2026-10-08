@@ -25,7 +25,7 @@ export const Singer: React.FC = () => {
     }, [singerName]);
 
 
-    const { singer, status: bioStatus, isLoading: isBioLoading, error: bioError } = useArtistBio(decodedSingerName);
+    const { singer, isLoading: isBioLoading, error: bioError } = useArtistBio(decodedSingerName);
 
 
     const { topSingers, artistAlbums, albumsError, albumsStatus } = useSelector((state: RootState) => state.singer);

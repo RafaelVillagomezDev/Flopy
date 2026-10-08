@@ -8,7 +8,7 @@ import { PlayMusic } from './PlayMusic';
 
 export const PlayerBarMobile: React.FC = () => {
     const dispatch = useAppDispatch();
-    const { isPlaying, currentTime, duration, currentTrack, isShuffle } = useAppSelector(
+    const { isPlaying, currentTime, duration, currentTrack } = useAppSelector(
         (state) => state.player
     );
 
